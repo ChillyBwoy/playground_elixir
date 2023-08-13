@@ -23,5 +23,5 @@ erl_crash.dump
 /tmp/
 
 /.db
-
+/.vscode
 .DS_Store
