@@ -1,0 +1,13 @@
+version: "3"
+services:
+  db_phoenix:
+    image: postgres:15.1-alpine
+    container_name: playground_dev
+    ports:
+      - 5432:5432
+    volumes:
+      - .db:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: playground
+      POSTGRES_PASSWORD: qwerty1234
+      POSTGRES_DB: playground_dev
