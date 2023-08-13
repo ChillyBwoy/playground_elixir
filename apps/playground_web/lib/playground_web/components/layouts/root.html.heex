@@ -8,10 +8,11 @@
       <%= assigns[:page_title] || "Playground" %>
     </.live_title>
     <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
-    <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
+    <script defer phx-track-static type="text/javascript" src={~p"/assets/index.js"}>
     </script>
   </head>
   <body class="bg-white antialiased">
+    <.flash_group flash={@flash} />
     <%= @inner_content %>
   </body>
 </html>
