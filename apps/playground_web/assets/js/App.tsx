@@ -2,6 +2,7 @@ import styled from "styled-components";
 import React from "react";
 
 import Canvas from "./components/Canvas"
+import { useSocket } from "./hooks/useSocket";
 
 const Root = styled.section`
   display: flex;

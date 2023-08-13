@@ -1,4 +1,4 @@
-import { uuid } from "../../lib/uuid";
+import { v4 as uuid } from "uuid";
 import { Store } from "../base";
 import type { User } from "./types";
 

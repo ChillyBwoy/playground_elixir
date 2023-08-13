@@ -1,76 +1,36 @@
 import styled from 'styled-components';
 import React from "react";
 
-import { dotsStore } from '../store/dots'
+import { dotsStore } from "../store/dots";
+import { useCanvas } from "../hooks/useCanvas";
+import { useRandomColor } from '../hooks/useRandomColor';
+import { useSocket } from '../hooks/useSocket';
 
 const Root = styled.div`
   position: relative;
 `
-
-const StyledCanvas = styled.canvas``;
 
 interface CanvasProps {
   width: number;
   height: number;
 }
 
-type Draw = (ctx: CanvasRenderingContext2D, frame: number) => void;
-
-function useCanvas(draw: Draw) {
-  const ref = React.useRef<HTMLCanvasElement>(null);
-
-  React.useEffect(() => {
-    if (!ref.current) {
-      return
-    }
-
-    const context = ref.current.getContext('2d')
-    if (!context) {
-      return
-    }
-
-    let frame = 0;
-    let animationFrameId: number | null = null;
-
-    const render = () => {
-      frame += 1;
-      context.fillStyle = '#fff'
-      context.fillRect(0, 0, context.canvas.width, context.canvas.height)
-      draw(context, frame)
-      animationFrameId = window.requestAnimationFrame(render)
-    }
-
-    render();
-
-    return () => {
-      if (animationFrameId) {
-        window.cancelAnimationFrame(animationFrameId)
-      }
-    }
-
-  }, [draw]);
-
-  return ref;
-}
-
-function useRandomColor() {
-  return React.useMemo(() => {
-    const r = Math.floor(Math.random() * 255);
-    const g = Math.floor(Math.random() * 255);
-    const b = Math.floor(Math.random() * 255);
-
-    return `rgba(${r}, ${g}, ${b}, 1)`
-  }, [])
-}
-
 const Canvas: React.FC<CanvasProps> = ({ width, height }) => {
   const color = useRandomColor();
-
-  const handleClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
-    dotsStore.add({ x: event.clientX, y: event.clientY, owner: 'me', color })
-  }
+  const { socket, channel } = useSocket("room:lobby");
 
   const dots = React.useSyncExternalStore(dotsStore.subscribe, dotsStore.getSnapshot);
+
+  React.useEffect(() => {
+    channel.on("dot:created", (payload) => {
+      console.log(payload);
+    });
+  }, [])
+
+  const handleClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    const newDot = dotsStore.add({ x: event.clientX, y: event.clientY, owner: 'me', color });
+    channel.push("dot:create", { dot: newDot })
+  }
 
   const ref = useCanvas((ctx, frame) => {
     for (const dot of dots) {
@@ -83,7 +43,7 @@ const Canvas: React.FC<CanvasProps> = ({ width, height }) => {
 
   return (
     <Root>
-      <StyledCanvas ref={ref} width={width} height={height} onClick={handleClick} />
+      <canvas ref={ref} width={width} height={height} onClick={handleClick} />
     </Root>
   );
 };
