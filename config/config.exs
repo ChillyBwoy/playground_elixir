@@ -12,6 +12,7 @@ import Config
 # Configure Mix tasks and generators
 config :playground,
   ecto_repos: [Playground.Repo]
+  generators: [binary_id: true]
 
 # Configures the mailer
 #

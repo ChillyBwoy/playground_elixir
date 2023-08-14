@@ -46,7 +46,4 @@ liveSocket.connect();
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket;
 
-const root = document.getElementById("root");
-
-console.log('start')
-ReactDOM.createRoot(root).render(<App />);
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
