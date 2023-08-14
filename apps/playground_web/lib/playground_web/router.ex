@@ -8,6 +8,7 @@ defmodule PlaygroundWeb.Router do
     plug :put_root_layout, html: {PlaygroundWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug PlaygroundWeb.Plugs.SetUser
   end
 
   pipeline :api do
@@ -18,6 +19,14 @@ defmodule PlaygroundWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+  end
+
+  scope "/auth", PlaygroundWeb do
+    pipe_through :browser
+
+    get "/signout", AuthController, :signout
+    get "/signin/:provider", AuthController, :request
+    get "/signin/:provider/callback", AuthController, :callback
   end
 
   # Other scopes may use custom stacks.

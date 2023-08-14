@@ -12,7 +12,6 @@ import Config
 # Configure Mix tasks and generators
 config :playground,
   ecto_repos: [Playground.Repo]
-  generators: [binary_id: true]
 
 # Configures the mailer
 #
@@ -25,7 +24,7 @@ config :playground, Playground.Mailer, adapter: Swoosh.Adapters.Local
 
 config :playground_web,
   ecto_repos: [Playground.Repo],
-  generators: [context_app: :playground]
+  generators: [context_app: :playground, binary_id: true]
 
 # Configures the endpoint
 config :playground_web, PlaygroundWeb.Endpoint,
@@ -70,3 +69,4 @@ config :phoenix, :json_library, Jason
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
+import_config "ueberauth.exs"

@@ -13,6 +13,13 @@
   </head>
   <body class="bg-white antialiased">
     <.flash_group flash={@flash} />
+    <header class="bg-slate-400 h-12">
+      <%= if @conn.assigns[:user] do %>
+        <.link href={~p"/auth/signout"}>Signout</.link>
+      <% else %>
+        <.link href={~p"/auth/signin/github"}>Signin with Github</.link>
+      <% end %>
+    </header>
     <%= @inner_content %>
   </body>
 </html>
