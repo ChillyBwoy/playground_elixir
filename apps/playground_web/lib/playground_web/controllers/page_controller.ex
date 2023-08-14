@@ -1,5 +1,6 @@
 defmodule PlaygroundWeb.PageController do
   use PlaygroundWeb, :controller
+  plug PlaygroundWeb.Plugs.RequireAuth when action in [:canvas]
 
   def home(conn, _params) do
     # The home page is often custom made,
