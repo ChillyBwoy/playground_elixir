@@ -1,4 +1,3 @@
-import styled from "styled-components";
 import React from "react";
 
 import { dotsStore } from "../../store/dots";
@@ -7,10 +6,6 @@ import { useRandomColor } from "../../hooks/useRandomColor";
 import { useSocket } from "../../hooks/useSocket";
 
 import { renderDot, renderGrid } from "./Canvas.tools";
-
-const Root = styled.div`
-  position: relative;
-`
 
 interface CanvasProps {
   width: number;
@@ -44,8 +39,6 @@ export const Canvas: React.FC<CanvasProps> = ({ width, height }) => {
   });
 
   return (
-    <Root>
-      <canvas ref={ref} width={width} height={height} onClick={handleClick} />
-    </Root>
+    <canvas ref={ref} width={width} height={height} onClick={handleClick} />
   );
 };

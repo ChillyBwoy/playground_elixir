@@ -1,0 +1,14 @@
+User:
+    - username: string
+    - email: string
+
+Room:
+    - name: string
+    - created_at: Datetime
+    + owner: User
+
+Message:
+    - content: string
+    - created_at: Datetime
+    + room: Room
+    + user: User
