@@ -6,4 +6,8 @@ defmodule PlaygroundWeb.PageController do
     # so skip the default app layout.
     render(conn, :home, layout: false)
   end
+
+  def canvas(conn, _params) do
+    render(conn, :canvas, layout: false)
+  end
 end

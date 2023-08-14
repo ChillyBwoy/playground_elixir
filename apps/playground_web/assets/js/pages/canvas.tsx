@@ -1,8 +1,8 @@
 import styled from "styled-components";
 import React from "react";
+import ReactDOM from "react-dom/client";
 
-import Canvas from "./components/Canvas"
-import { useSocket } from "./hooks/useSocket";
+import Canvas from "../components/Canvas"
 
 const Root = styled.section`
   display: flex;
@@ -23,9 +23,7 @@ const StyledCanvas = styled(Canvas)`
   flex: 1;
 `
 
-interface AppProps { }
-
-const App: React.FC<AppProps> = () => {
+const App: React.FC = () => {
   return (
     <Root>
       <Content>
@@ -36,4 +34,7 @@ const App: React.FC<AppProps> = () => {
   );
 };
 
-export default App;
+const root = document.getElementById("root");
+if (root) {
+  ReactDOM.createRoot(root).render(<App />);
+}

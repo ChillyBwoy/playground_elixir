@@ -19,6 +19,7 @@ defmodule PlaygroundWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    get "/canvas", PageController, :canvas
   end
 
   scope "/auth", PlaygroundWeb do

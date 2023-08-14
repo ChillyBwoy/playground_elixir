@@ -20,10 +20,7 @@ import "phoenix_html";
 // Establish Phoenix Socket and LiveView configuration.
 import { Socket } from "phoenix";
 import { LiveSocket } from "phoenix_live_view";
-import React from "react";
-import ReactDOM from "react-dom/client";
 import topbar from "../vendor/topbar";
-import App from "./App";
 
 let csrfToken = document
   .querySelector("meta[name='csrf-token']")
@@ -45,5 +42,3 @@ liveSocket.connect();
 // >> liveSocket.enableLatencySim(1000)  // enabled for duration of browser session
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket;
-
-ReactDOM.createRoot(document.getElementById("root")).render(<App />);

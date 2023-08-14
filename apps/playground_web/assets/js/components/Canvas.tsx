@@ -28,6 +28,7 @@ const Canvas: React.FC<CanvasProps> = ({ width, height }) => {
   }, [])
 
   const handleClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    console.log(event)
     const newDot = dotsStore.add({ x: event.clientX, y: event.clientY, owner: 'me', color });
     channel.push("dot:create", { dot: newDot })
   }
