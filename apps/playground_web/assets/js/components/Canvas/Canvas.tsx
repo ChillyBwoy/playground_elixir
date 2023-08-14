@@ -1,10 +1,12 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 import React from "react";
 
-import { dotsStore } from "../store/dots";
-import { useCanvas } from "../hooks/useCanvas";
-import { useRandomColor } from '../hooks/useRandomColor';
-import { useSocket } from '../hooks/useSocket';
+import { dotsStore } from "../../store/dots";
+import { useCanvas } from "../../hooks/useCanvas";
+import { useRandomColor } from "../../hooks/useRandomColor";
+import { useSocket } from "../../hooks/useSocket";
+
+import { renderDot, renderGrid } from "./Canvas.tools";
 
 const Root = styled.div`
   position: relative;
@@ -15,7 +17,7 @@ interface CanvasProps {
   height: number;
 }
 
-const Canvas: React.FC<CanvasProps> = ({ width, height }) => {
+export const Canvas: React.FC<CanvasProps> = ({ width, height }) => {
   const color = useRandomColor();
   const { socket, channel } = useSocket("room:lobby");
 
@@ -29,16 +31,15 @@ const Canvas: React.FC<CanvasProps> = ({ width, height }) => {
 
   const handleClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
     console.log(event)
-    const newDot = dotsStore.add({ x: event.clientX, y: event.clientY, owner: 'me', color });
+    const newDot = dotsStore.add({ x: event.clientX, y: event.clientY, owner: "me", color });
     channel.push("dot:create", { dot: newDot })
   }
 
   const ref = useCanvas((ctx, frame) => {
+    renderGrid(ctx, frame, 50);
+
     for (const dot of dots) {
-      ctx.fillStyle = dot.color;
-      ctx.beginPath();
-      ctx.arc(dot.x, dot.y, 10 * Math.sin(frame * 0.05) ** 2, 0, 2 * Math.PI)
-      ctx.fill();
+      renderDot(ctx, frame, dot);
     }
   });
 
@@ -48,5 +49,3 @@ const Canvas: React.FC<CanvasProps> = ({ width, height }) => {
     </Root>
   );
 };
-
-export default Canvas;

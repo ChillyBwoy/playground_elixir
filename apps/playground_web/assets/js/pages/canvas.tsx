@@ -2,7 +2,7 @@ import styled from "styled-components";
 import React from "react";
 import ReactDOM from "react-dom/client";
 
-import Canvas from "../components/Canvas"
+import { Canvas } from "../components/Canvas/Canvas"
 
 const Root = styled.section`
   display: flex;
