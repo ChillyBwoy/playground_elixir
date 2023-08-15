@@ -8,7 +8,7 @@ defmodule PlaygroundWeb.PageController do
     render(conn, :home, layout: false)
   end
 
-  def canvas(conn, _params) do
-    render(conn, :canvas, layout: false)
+  def room(conn, _params) do
+    render(conn, :room, layout: false)
   end
 end

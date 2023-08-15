@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 
 import { Canvas } from "../components/Canvas/Canvas"
 
-const App: React.FC = () => {
+export const RoomPage: React.FC = () => {
   return (
     <div className="flex bg-yellow-700">
       <div className="bg-slate-100 flex-1">
@@ -15,6 +15,6 @@ const App: React.FC = () => {
 };
 
 const root = document.getElementById("root");
-// if (root) {
-//   ReactDOM.createRoot(root).render(<App />);
-// }
+if (root) {
+  ReactDOM.createRoot(root).render(<RoomPage />);
+}
