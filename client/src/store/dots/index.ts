@@ -1,21 +1,14 @@
-import { v4 as uuid } from "uuid";
 import { Store } from "../base";
-import type { Dot } from "./types";
+import type { Dot, DotInstance } from "./types";
 
 class DotsStore extends Store<Array<Dot>, Dot> {
   constructor() {
     super([]);
   }
 
-  add = (payload: Omit<Dot, "id">): Dot => {
-    const newDot = {
-      ...payload,
-      id: uuid(),
-    };
-    this.state = [...this.state, newDot];
-    this.emit(newDot);
-
-    return newDot;
+  add = (dot: DotInstance) => {
+    this.state = [...this.state, dot];
+    this.emit(dot);
   };
 }
 

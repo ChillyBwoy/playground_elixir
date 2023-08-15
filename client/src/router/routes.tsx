@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 import DefaultLayout from "../layouts/DefaultLayout";
 import NotFoundPage from "../pages/NotFoundPage";
 import HomePage from "../pages/HomePage";
+import RoomPage from "../pages/RoomPage";
 
 export const router = createBrowserRouter([
   {
@@ -14,10 +15,11 @@ export const router = createBrowserRouter([
       },
       {
         path: "/room/:id",
-        async lazy() {
-          const { Component, loader } = await import("../pages/RoomPage");
-          return { Component, loader };
-        },
+        element: <RoomPage />,
+        // async lazy() {
+        //   const { Component, loader } = await import("../pages/RoomPage");
+        //   return { Component, loader };
+        // },
       },
       {
         path: "*",

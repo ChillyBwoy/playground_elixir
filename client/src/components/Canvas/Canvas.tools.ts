@@ -2,7 +2,7 @@ import { Dot } from "../../store/dots/types";
 
 export function renderGrid(
   ctx: CanvasRenderingContext2D,
-  frame: number,
+  _frame: number,
   size: number
 ) {
   const { width, height } = ctx.canvas;
@@ -22,6 +22,16 @@ export function renderGrid(
   }
 
   ctx.stroke();
+}
+
+export function renderDots(
+  ctx: CanvasRenderingContext2D,
+  frame: number,
+  dots: Array<Dot>
+) {
+  for (const dot of dots) {
+    renderDot(ctx, frame, dot);
+  }
 }
 
 export function renderDot(

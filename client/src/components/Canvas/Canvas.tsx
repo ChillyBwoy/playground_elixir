@@ -5,38 +5,54 @@ import { useCanvas } from "../../hooks/useCanvas";
 import { useRandomColor } from "../../hooks/useRandomColor";
 import { useSocket } from "../../hooks/useSocket";
 
-import { renderDot, renderGrid } from "./Canvas.tools";
+import { renderDots, renderGrid } from "./Canvas.tools";
+import { Dot, DotInstance } from "../../store/dots/types";
 
 interface CanvasProps {
   width: number;
   height: number;
 }
 
+interface DotCreatePayload {
+  dot: DotInstance;
+}
+
 export const Canvas: React.FC<CanvasProps> = ({ width, height }) => {
   const color = useRandomColor();
-  const { channel } = useSocket("room:lobby");
 
-  const dots = React.useSyncExternalStore(dotsStore.subscribe, dotsStore.getSnapshot);
+  const dots = React.useSyncExternalStore(
+    dotsStore.subscribe,
+    dotsStore.getSnapshot
+  );
 
-  React.useEffect(() => {
-    channel.on("dot:created", (payload) => {
-      console.log(payload);
+  const { channel } = useSocket((channel) => {
+    channel.on("dot:created", (payload: DotCreatePayload) => {
+      dotsStore.add(payload.dot);
     });
-  }, [channel]);
+  });
 
   const handleClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
-    console.log(event)
-    const newDot = dotsStore.add({ x: event.clientX, y: event.clientY, owner: "me", color });
-    channel.push("dot:create", { dot: newDot })
-  }
+    const { left, top } = event.currentTarget.getBoundingClientRect();
 
-  const ref = useCanvas((ctx, frame) => {
-    renderGrid(ctx, frame, 50);
+    const dot: Dot = {
+      x: event.clientX - left,
+      y: event.clientY - top,
+      owner: "me",
+      color,
+    };
 
-    for (const dot of dots) {
-      renderDot(ctx, frame, dot);
-    }
-  });
+    channel.push("dot:create", { dot });
+  };
+
+  const draw = React.useCallback(
+    (ctx: CanvasRenderingContext2D, frame: number) => {
+      renderGrid(ctx, frame, 20);
+      renderDots(ctx, frame, dots);
+    },
+    [dots]
+  );
+
+  const ref = useCanvas(draw);
 
   return (
     <canvas ref={ref} width={width} height={height} onClick={handleClick} />

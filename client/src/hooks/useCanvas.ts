@@ -6,12 +6,8 @@ export function useCanvas(draw: Draw) {
   const ref = React.useRef<HTMLCanvasElement>(null);
 
   React.useEffect(() => {
-    if (!ref.current) {
-      return;
-    }
-
-    const context = ref.current.getContext("2d");
-    if (!context) {
+    const ctx = ref.current?.getContext("2d");
+    if (!ctx) {
       return;
     }
 
@@ -20,9 +16,9 @@ export function useCanvas(draw: Draw) {
 
     const render = () => {
       frame += 1;
-      context.fillStyle = "#fff";
-      context.fillRect(0, 0, context.canvas.width, context.canvas.height);
-      draw(context, frame);
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      draw(ctx, frame);
       animationFrameId = window.requestAnimationFrame(render);
     };
 

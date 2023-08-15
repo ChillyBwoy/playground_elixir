@@ -1,18 +1,40 @@
-import { Socket } from "phoenix";
+import { Socket, Channel } from "phoenix";
+import React from "react";
 
-export function useSocket(endpoint: string) {
-  const socket = new Socket("/socket", { params: { token: window.userToken } });
-  socket.connect();
+type Callback = (channel: Channel) => void;
 
-  const channel = socket.channel(endpoint, {});
-  channel
-    .join()
-    .receive("ok", (resp) => {
-      console.log("Joined successfully", resp);
-    })
-    .receive("error", (resp) => {
-      console.log("Unable to join", resp);
-    });
+export function useSocket(callback: Callback) {
+  const ready = React.useRef(false);
 
-  return { socket, channel };
+  const socket = React.useMemo(
+    () => new Socket("ws://localhost:4000/socket", {}),
+    []
+  );
+
+  const channel = React.useMemo(
+    () => socket.channel("room:lobby", {}),
+    [socket]
+  );
+
+  React.useEffect(() => {
+    if (ready.current) {
+      return;
+    }
+
+    socket.connect();
+    channel
+      .join()
+      .receive("ok", (resp) => {
+        console.log("Joined successfully", resp);
+      })
+      .receive("error", (resp) => {
+        console.log("Unable to join", resp);
+      });
+
+    callback(channel);
+
+    ready.current = true;
+  }, [callback, channel, socket]);
+
+  return { channel, socket };
 }

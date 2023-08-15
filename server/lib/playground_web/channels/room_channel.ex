@@ -1,6 +1,7 @@
 defmodule PlaygroundWeb.RoomChannel do
   use PlaygroundWeb, :channel
 
+  import Ecto.UUID
   intercept ["user_joined"]
 
   @impl true
@@ -29,7 +30,11 @@ defmodule PlaygroundWeb.RoomChannel do
 
   @impl true
   def handle_in("dot:create", %{"dot" => dot}, socket) do
-    broadcast!(socket, "dot:created", %{dot: dot})
+
+    new_dot = dot
+      |> Map.put("id", generate())
+
+    broadcast!(socket, "dot:created", %{dot: new_dot})
     {:noreply, socket}
   end
 
