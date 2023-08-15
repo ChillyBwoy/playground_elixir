@@ -14,7 +14,7 @@ interface CanvasProps {
 
 export const Canvas: React.FC<CanvasProps> = ({ width, height }) => {
   const color = useRandomColor();
-  const { socket, channel } = useSocket("room:lobby");
+  const { channel } = useSocket("room:lobby");
 
   const dots = React.useSyncExternalStore(dotsStore.subscribe, dotsStore.getSnapshot);
 
@@ -22,7 +22,7 @@ export const Canvas: React.FC<CanvasProps> = ({ width, height }) => {
     channel.on("dot:created", (payload) => {
       console.log(payload);
     });
-  }, [])
+  }, [channel]);
 
   const handleClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
     console.log(event)

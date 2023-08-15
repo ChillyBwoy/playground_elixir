@@ -1,9 +1,8 @@
 import React from "react";
-import ReactDOM from "react-dom/client";
 
-import { Canvas } from "../components/Canvas/Canvas"
+import { Canvas } from "../components/Canvas/Canvas";
 
-export const RoomPage: React.FC = () => {
+const RoomPage: React.FC = () => {
   return (
     <div className="flex bg-yellow-700">
       <div className="bg-slate-100 flex-1">
@@ -14,7 +13,8 @@ export const RoomPage: React.FC = () => {
   );
 };
 
-const root = document.getElementById("root");
-if (root) {
-  ReactDOM.createRoot(root).render(<RoomPage />);
+export async function loader() {
+  return null;
 }
+
+export const Component = RoomPage;

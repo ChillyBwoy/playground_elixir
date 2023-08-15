@@ -11,12 +11,12 @@ export function renderGrid(
   ctx.lineWidth = 0.5;
   ctx.beginPath();
 
-  for (var x = size; x <= width - size; x += size) {
+  for (let x = size; x <= width - size; x += size) {
     ctx.moveTo(x, size);
     ctx.lineTo(x, height - size);
   }
 
-  for (var y = size; y <= height - size; y += size) {
+  for (let y = size; y <= height - size; y += size) {
     ctx.moveTo(size, y);
     ctx.lineTo(width - size, y);
   }
