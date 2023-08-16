@@ -10,9 +10,6 @@ defmodule Playground.Auth.User do
     field :email, :string
     field :avatar_url, :string
 
-    has_many :rooms, Playground.Chat.Room
-    has_many :messages, Playground.Chat.Message
-
     timestamps()
   end
 

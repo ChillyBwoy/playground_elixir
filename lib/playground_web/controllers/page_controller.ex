@@ -1,6 +1,6 @@
 defmodule PlaygroundWeb.PageController do
   use PlaygroundWeb, :controller
-  plug PlaygroundWeb.Plugs.RequireAuth when action in [:room]
+  # plug PlaygroundWeb.Plugs.RequireAuth when action in [:info]
 
   def home(conn, _params) do
     # The home page is often custom made,
@@ -9,12 +9,6 @@ defmodule PlaygroundWeb.PageController do
   end
 
   def info(conn, _params) do
-    # The home page is often custom made,
-    # so skip the default app layout.
     render(conn, :info, layout: false)
-  end
-
-  def room(conn, _params) do
-    render(conn, :room, layout: false)
   end
 end
