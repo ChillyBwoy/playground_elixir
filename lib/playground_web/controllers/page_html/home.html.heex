@@ -1,16 +1,3 @@
-<h1>home page</h1>
+<canvas id="canvas" width="1000" height="1000" />
 
-
-<!--
-import Ecto.UUID
-
-@impl true
-def handle_in("dot:create", %{"dot" => dot}, socket) do
-  new_dot =
-    dot
-    |> Map.put("id", generate())
-
-  broadcast!(socket, "dot:created", %{dot: new_dot})
-  {:noreply, socket}
-end
--->
+<script defer phx-track-static type="text/javascript" src={~p"/assets/pages/canvas.js"} />
