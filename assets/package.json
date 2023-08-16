@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "konva": "9.2.0",
     "phoenix": "1.7.7"
   },
   "devDependencies": {

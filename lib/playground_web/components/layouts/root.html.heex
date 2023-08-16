@@ -11,23 +11,24 @@
     <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
     </script>
   </head>
-  <body class="bg-white antialiased">
-    <header>
-      <nav class="bg-gray-800 p-8 flex justify-between">
+  <body class="bg-white antialiased h-full">
+    <header class="top-0 fixed w-full z-50">
+      <nav class="bg-gray-800 px-8 h-20 flex justify-between">
         <ul class="flex gap-8">
-          <li>
+          <li class="flex items-center">
             <.link navigate={~p"/"} class="text-white font-mono text-xl">Home</.link>
           </li>
-          <li>
+          <li class="flex items-center">
             <.link navigate={~p"/info"} class="text-white font-mono text-xl">Info</.link>
           </li>
         </ul>
-        <ul>
-          <li>
+        <ul class="flex gap-8">
+          <li class="flex items-center gap-2">
             <%= if @conn.assigns[:user] do %>
               <.link navigate={~p"/auth/signout"} class="text-white font-mono text-xl">Signout</.link>
+              <img src={@conn.assigns[:user].avatar_url} class="rounded-full" width="32" height="32" />
             <% else %>
-              <.link navigate={~p"/auth/signin/github"} class="text-white font-mono text-xl">Signin with github</.link>
+              <.link navigate={~p"/auth/signin/github"} class="text-white font-mono text-xl">Signin</.link>
             <% end %>
           </li>
         </ul>

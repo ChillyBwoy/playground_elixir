@@ -1,84 +1,115 @@
-import { DotsStore } from "../lib/store/dots";
-import type { Dot } from "../lib/store/dots";
-import { randomRGB } from "../lib/color";
-import { withCanvas } from "../lib/withCanvas";
-import { withSocket } from "../lib/withSocket";
+import Konva from "konva";
 
-const dotsStore = new DotsStore();
+import type { Dot } from "../lib/store/dots";
+import { withSocket } from "../lib/withSocket";
+import { renderGrid } from "../lib/canvas";
+import { range } from "../lib/range";
+import { randomRGB } from "../lib/color";
+
+const { channel } = withSocket("/socket");
 
 interface DotCreatePayload {
   dot: Dot;
 }
 
-export function renderGrid(
-  ctx: CanvasRenderingContext2D,
-  _frame: number,
-  size: number
-) {
-  const { width, height } = ctx.canvas;
-
-  ctx.strokeStyle = "#000";
-  ctx.lineWidth = 0.5;
-  ctx.beginPath();
-
-  for (let x = size; x <= width - size; x += size) {
-    ctx.moveTo(x, size);
-    ctx.lineTo(x, height - size);
-  }
-
-  for (let y = size; y <= height - size; y += size) {
-    ctx.moveTo(size, y);
-    ctx.lineTo(width - size, y);
-  }
-
-  ctx.stroke();
-}
-
-export function renderDots(
-  ctx: CanvasRenderingContext2D,
-  frame: number,
-  dots: Array<Dot>
-) {
-  for (const dot of dots) {
-    renderDot(ctx, frame, dot);
-  }
-}
-
-export function renderDot(
-  ctx: CanvasRenderingContext2D,
-  frame: number,
-  dot: Dot
-) {
-  ctx.fillStyle = dot.color;
-  ctx.beginPath();
-  ctx.arc(dot.x, dot.y, 10 * Math.sin(frame * 0.05) ** 2, 0, 2 * Math.PI);
-  ctx.fill();
-}
-
-const { channel } = withSocket("/socket");
-
-channel.on("dot:created", (payload: DotCreatePayload) => {
-  dotsStore.add(payload.dot);
+const stage = new Konva.Stage({
+  container: "canvas",
+  width: 3000,
+  height: 3000,
+  draggable: true,
 });
 
-const $canvas = document.getElementById("canvas") as HTMLCanvasElement;
+const backgroundLayer = new Konva.Layer();
+const gridLayer = new Konva.Layer();
+const drawLayer = new Konva.Layer();
 
-$canvas.addEventListener("click", (event) => {
-  const { left, top } = (
-    event.currentTarget as HTMLCanvasElement
-  ).getBoundingClientRect();
+backgroundLayer.add(
+  new Konva.Rect({
+    x: 0,
+    y: 0,
+    width: stage.width(),
+    height: stage.height(),
+    fill: "white",
+  })
+);
 
-  const dot: Omit<Dot, "id"> = {
-    x: event.clientX - left,
-    y: event.clientY - top,
-    owner: "me",
-    color: randomRGB(),
+stage.add(backgroundLayer);
+stage.add(gridLayer);
+stage.add(drawLayer);
+
+backgroundLayer.draw();
+drawLayer.draw();
+
+function render() {
+  renderGrid(stage, gridLayer);
+}
+
+let scales = range(0.5, 5, 0.25);
+let currentScale = 1;
+
+stage.scale({ x: currentScale, y: currentScale });
+
+render();
+
+stage.on("wheel", (event) => {
+  event.evt.preventDefault();
+
+  const oldScale = stage.scaleX();
+  const pointer = stage.getPointerPosition()!;
+
+  const mousePointTo = {
+    x: (pointer.x - stage.x()) / oldScale,
+    y: (pointer.y - stage.y()) / oldScale,
   };
 
+  let direction = event.evt.deltaY > 0 ? -1 : 1;
+  if (event.evt.ctrlKey) {
+    direction = -direction;
+  }
+
+  if (direction > 0) {
+    currentScale = currentScale > 0 ? currentScale - 1 : currentScale;
+  } else {
+    currentScale =
+      currentScale < scales.length - 1 ? currentScale + 1 : currentScale;
+  }
+
+  const newScale = scales[currentScale];
+  stage.scale({ x: newScale, y: newScale });
+
+  const newPos = {
+    x: pointer.x - mousePointTo.x * newScale,
+    y: pointer.y - mousePointTo.y * newScale,
+  };
+  stage.position(newPos);
+  stage.draw();
+});
+
+stage.on("click", () => {
+  const pointer = stage.getPointerPosition()!;
+  const scale = stage.scaleX();
+
+  const x = (pointer.x - stage.x()) / scale;
+  const y = (pointer.y - stage.y()) / scale;
+
+  const dot: Omit<Dot, "id"> = {
+    owner: "me",
+    color: randomRGB(),
+    x,
+    y,
+  };
   channel.push("dot:create", { dot });
 });
 
-withCanvas($canvas, (ctx, frame) => {
-  renderGrid(ctx, frame, 20);
-  renderDots(ctx, frame, dotsStore.getSnapshot());
+channel.on("dot:created", (data: DotCreatePayload) => {
+  const { dot } = data;
+
+  const circle = new Konva.Circle({
+    x: dot.x,
+    y: dot.y,
+    radius: 10,
+    fill: dot.color,
+  });
+
+  drawLayer.add(circle);
 });
