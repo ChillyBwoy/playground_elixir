@@ -14,10 +14,10 @@ defmodule PlaygroundWeb.LightLive do
       </span>
     </div>
     <div class="flex justify-between">
-      <button phx-click="off" id="off" class="h-12 px-8 rounded-lg border border-slate-800 font-bold">Off</button>
-      <button phx-click="down" id="off" class="h-12 px-8 rounded-lg border border-slate-800 font-bold">Down</button>
-      <button phx-click="up" id="off" class="h-12 px-8 rounded-lg border border-slate-800 font-bold">Up</button>
-      <button phx-click="on" id="on" class="h-12 px-8  rounded-lg border border-slate-800 font-bold">On</button>
+      <button phx-click="off" class="h-12 px-8 rounded-lg border border-slate-800 font-bold">Off</button>
+      <button phx-click="down" class="h-12 px-8 rounded-lg border border-slate-800 font-bold">Down</button>
+      <button phx-click="up" class="h-12 px-8 rounded-lg border border-slate-800 font-bold">Up</button>
+      <button phx-click="on" class="h-12 px-8  rounded-lg border border-slate-800 font-bold">On</button>
     </div>
     """
   end
