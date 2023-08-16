@@ -14,6 +14,8 @@ defmodule PlaygroundWeb.AuthController do
       {:ok, user} ->
         conn
         |> put_session(:user_id, user.id)
+        |> put_session(:id, auth.credentials.token)
+        |> put_resp_cookie("session_id", auth.credentials.token, [http_only: true])
         |> redirect(to: "/")
 
       {:error, _changeset} ->

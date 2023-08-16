@@ -21,7 +21,6 @@ defmodule Playground.AuthFixtures do
     {:ok, user} =
       attrs
       |> Enum.into(%{
-        token: "some token",
         username: unique_user_username(),
         provider: "some provider",
         email: unique_user_email(),

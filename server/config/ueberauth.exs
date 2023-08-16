@@ -7,7 +7,8 @@ config :ueberauth, Ueberauth,
       [
         default_scope: "user",
         request_path: "/auth/signin/github",
-        callback_path: "/auth/signin/github/callback"
+        callback_path: "/auth/signin/github/callback",
+        allow_private_emails: true
       ]
     }
   ]

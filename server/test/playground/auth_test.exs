@@ -8,7 +8,7 @@ defmodule Playground.AuthTest do
 
     import Playground.AuthFixtures
 
-    @invalid_attrs %{token: nil, username: nil, provider: nil, email: nil, avatar_url: nil}
+    @invalid_attrs %{username: nil, provider: nil, email: nil, avatar_url: nil}
 
     test "list_users/0 returns all users" do
       user = user_fixture()
@@ -21,10 +21,14 @@ defmodule Playground.AuthTest do
     end
 
     test "create_user/1 with valid data creates a user" do
-      valid_attrs = %{token: "some token", username: "some username", provider: "some provider", email: "some email", avatar_url: "some avatar_url"}
+      valid_attrs = %{
+        username: "some username",
+        provider: "some provider",
+        email: "some email",
+        avatar_url: "some avatar_url"
+      }
 
       assert {:ok, %User{} = user} = Auth.create_user(valid_attrs)
-      assert user.token == "some token"
       assert user.username == "some username"
       assert user.provider == "some provider"
       assert user.email == "some email"
@@ -37,10 +41,15 @@ defmodule Playground.AuthTest do
 
     test "update_user/2 with valid data updates the user" do
       user = user_fixture()
-      update_attrs = %{token: "some updated token", username: "some updated username", provider: "some updated provider", email: "some updated email", avatar_url: "some updated avatar_url"}
+
+      update_attrs = %{
+        username: "some updated username",
+        provider: "some updated provider",
+        email: "some updated email",
+        avatar_url: "some updated avatar_url"
+      }
 
       assert {:ok, %User{} = user} = Auth.update_user(user, update_attrs)
-      assert user.token == "some updated token"
       assert user.username == "some updated username"
       assert user.provider == "some updated provider"
       assert user.email == "some updated email"

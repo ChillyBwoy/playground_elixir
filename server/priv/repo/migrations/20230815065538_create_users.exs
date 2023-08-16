@@ -8,12 +8,11 @@ defmodule Playground.Repo.Migrations.CreateUsers do
       add :username, :string, null: false
       add :avatar_url, :string
       add :provider, :string, null: false
-      add :token, :string, null: false
 
       timestamps()
     end
 
-    create unique_index(:users, [:username])
-    create unique_index(:users, [:email])
+    create(unique_index(:users, [:username]))
+    create(unique_index(:users, [:email]))
   end
 end

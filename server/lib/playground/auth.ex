@@ -102,13 +102,12 @@ defmodule Playground.Auth do
     User.changeset(user, attrs)
   end
 
-  def user_from_oauth(%{info: info, credentials: credentials, provider: :github}) do
+  def user_from_oauth(%{info: info, provider: :github}) do
     %{
       provider: "github",
       username: info.nickname,
       email: info.email,
-      avatar_url: info.image,
-      token: credentials.token
+      avatar_url: info.image
     }
   end
 
