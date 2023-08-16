@@ -3,10 +3,12 @@ import Config
 config :ueberauth, Ueberauth,
   providers: [
     github: {
-      Ueberauth.Strategy.Github, [
+      Ueberauth.Strategy.Github,
+      [
         default_scope: "user",
         request_path: "/auth/signin/github",
-        callback_path: "/auth/signin/github/callback"
+        callback_path: "/auth/signin/github/callback",
+        allow_private_emails: true
       ]
     }
   ]

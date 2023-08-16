@@ -15,19 +15,19 @@ config :playground, Playground.Repo,
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
-config :playground_web, PlaygroundWeb.Endpoint,
+config :playground, PlaygroundWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
-  secret_key_base: "L43AyViIphZsVNTjDgo1LqFHeE/Ebdu5zNZoGbWWxftY3joC5nfuFa4BaLFyunCN",
+  secret_key_base: "Q/beO2uynRBqAXYlG6odkYI0NWfc3mUM3G53VGmlYnS4sHjZL1xkJpsnrJw4l4Qj",
   server: false
-
-# Print only warnings and errors during test
-config :logger, level: :warning
 
 # In test we don't send emails.
 config :playground, Playground.Mailer, adapter: Swoosh.Adapters.Test
 
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
+
+# Print only warnings and errors during test
+config :logger, level: :warning
 
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime

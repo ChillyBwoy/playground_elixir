@@ -1,17 +1,25 @@
-# This file is responsible for configuring your umbrella
-# and **all applications** and their dependencies with the
-# help of the Config module.
+# This file is responsible for configuring your application
+# and its dependencies with the aid of the Config module.
 #
-# Note that all applications in your umbrella share the
-# same configuration and dependencies, which is why they
-# all use the same configuration file. If you want different
-# configurations or dependencies per app, it is best to
-# move said applications out of the umbrella.
+# This configuration file is loaded before any dependency and
+# is restricted to this project.
+
+# General application configuration
 import Config
 
-# Configure Mix tasks and generators
 config :playground,
-  ecto_repos: [Playground.Repo]
+  ecto_repos: [Playground.Repo],
+  generators: [binary_id: true]
+
+# Configures the endpoint
+config :playground, PlaygroundWeb.Endpoint,
+  url: [host: "localhost"],
+  render_errors: [
+    formats: [html: PlaygroundWeb.ErrorHTML, json: PlaygroundWeb.ErrorJSON],
+    layout: false
+  ],
+  pubsub_server: Playground.PubSub,
+  live_view: [signing_salt: "h+2xwfbi"]
 
 # Configures the mailer
 #
@@ -22,27 +30,13 @@ config :playground,
 # at the `config/runtime.exs`.
 config :playground, Playground.Mailer, adapter: Swoosh.Adapters.Local
 
-config :playground_web,
-  ecto_repos: [Playground.Repo],
-  generators: [context_app: :playground, binary_id: true]
-
-# Configures the endpoint
-config :playground_web, PlaygroundWeb.Endpoint,
-  url: [host: "localhost"],
-  render_errors: [
-    formats: [html: PlaygroundWeb.ErrorHTML, json: PlaygroundWeb.ErrorJSON],
-    layout: false
-  ],
-  pubsub_server: Playground.PubSub,
-  live_view: [signing_salt: "VqKBFrYr"]
-
 # Configure esbuild (the version is required)
 config :esbuild,
   version: "0.17.11",
   default: [
     args:
-      ~w(src/app.ts src/pages/RoomPage.tsx --bundle --target=es2017 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
-    cd: Path.expand("../apps/playground_web/assets", __DIR__),
+      ~w(src/app.js src/pages/canvas.ts --bundle --target=es2017 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
+    cd: Path.expand("../assets", __DIR__),
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
   ]
 
@@ -55,7 +49,7 @@ config :tailwind,
       --input=css/app.css
       --output=../priv/static/assets/app.css
     ),
-    cd: Path.expand("../apps/playground_web/assets", __DIR__)
+    cd: Path.expand("../assets", __DIR__)
   ]
 
 # Configures Elixir's Logger
