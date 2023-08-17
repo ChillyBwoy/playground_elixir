@@ -6,20 +6,17 @@ interface CanvasRendererOptions {
   gridSize: number;
   gridColor: string;
   bgColor: string;
-  onClick: (
-    evt: Konva.KonvaEventObject<MouseEvent>,
-    stage: Konva.Stage
-  ) => void;
 }
 
 export class CanvasRenderer {
   private options: CanvasRendererOptions;
 
-  private stage: Konva.Stage;
+  public stage: Konva.Stage;
 
   private backgroundLayer: Konva.Layer;
   private gridLayer: Konva.Layer;
   public drawLayer: Konva.Layer;
+  public userLayer: Konva.Layer;
 
   private grid: CanvasGrid;
   private scale: CanvasScale;
@@ -36,6 +33,7 @@ export class CanvasRenderer {
     this.backgroundLayer = new Konva.Layer();
     this.gridLayer = new Konva.Layer();
     this.drawLayer = new Konva.Layer();
+    this.userLayer = new Konva.Layer();
 
     this.grid = new CanvasGrid(this.stage, this.gridLayer, {
       gridSize: this.options.gridSize,
@@ -54,16 +52,13 @@ export class CanvasRenderer {
     this.stage.add(this.backgroundLayer);
     this.stage.add(this.gridLayer);
     this.stage.add(this.drawLayer);
+    this.stage.add(this.userLayer);
 
     this.backgroundLayer.add(
       new Konva.Rect({ x: 0, y: 0, width, height, fill: this.options.bgColor })
     );
 
     this.scale.init();
-
-    this.stage.on("click", (evt) => {
-      this.options.onClick(evt, this.stage);
-    });
   }
 
   toggleDraggable(value: boolean) {
@@ -75,5 +70,6 @@ export class CanvasRenderer {
     this.backgroundLayer.draw();
     this.grid.render();
     this.drawLayer.draw();
+    this.userLayer.draw();
   }
 }

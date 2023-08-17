@@ -1,0 +1,27 @@
+<script>window.userToken = "<%= assigns[:user_token] %>";</script>
+
+<style>
+    body {
+        overflow: hidden;
+    }
+</style>
+
+<section class="h-full min-h-screen pt-20 bg-gray-200">
+    <div id="canvas"></div>
+    <div class="w-1/4 bg-slate-500 absolute right-0 top-0 h-screen pt-20">
+        <div class="p-4">
+            <form id="canvas_settings_form" class="flex gap-4">
+                <label class="cursor-pointer">
+                    <input type="radio" name="mode" value="move" class="hidden [&:checked+span]:bg-amber-400" checked />
+                    <.icon name="hero-arrows-pointing-out" class="h-8 w-8 bg-white" />
+                </label>
+                <label class="cursor-pointer">
+                    <input type="radio" name="mode" value="draw" class="hidden [&:checked+span]:bg-amber-400" />
+                    <.icon name="hero-paint-brush" class="h-8 w-8 bg-white" />
+                </label>
+            </form>
+        </div>
+    </div>
+</section>
+
+<script defer phx-track-static type="text/javascript" src={~p"/assets/pages/canvas.js"} />

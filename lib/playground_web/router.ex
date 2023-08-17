@@ -20,6 +20,7 @@ defmodule PlaygroundWeb.Router do
 
     get "/", PageController, :home
     get "/info", PageController, :info
+    get "/room", PageController, :room
 
     live "/light", LightLive
   end

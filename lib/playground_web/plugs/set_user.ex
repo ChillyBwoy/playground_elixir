@@ -11,7 +11,11 @@ defmodule PlaygroundWeb.Plugs.SetUser do
     try do
       case get_user!(user_id) do
         nil -> assign(conn, :user, nil)
-        user -> assign(conn, :user, user)
+        user ->
+          token = Phoenix.Token.sign(conn, "user socket", user.id)
+          conn
+            |> assign(:user, user)
+            |> assign(:user_token, token)
       end
     rescue
       _ -> assign(conn, :user, nil)
