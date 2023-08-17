@@ -66,6 +66,11 @@ export class CanvasRenderer {
     });
   }
 
+  toggleDraggable(value: boolean) {
+    this.stage.draggable(value);
+    return this;
+  }
+
   render() {
     this.backgroundLayer.draw();
     this.grid.render();
