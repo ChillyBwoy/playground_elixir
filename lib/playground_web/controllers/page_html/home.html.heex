@@ -7,7 +7,18 @@
 <section class="h-full min-h-screen pt-20 bg-gray-200">
     <div id="canvas"></div>
     <div class="w-1/4 bg-slate-500 absolute right-0 top-0 h-screen pt-20">
-        <div class="p-4">Sidebar</div>
+        <div class="p-4">
+            <form id="canvas_settings_form" class="flex gap-4">
+                <label>
+                    <.icon name="hero-arrows-pointing-out" class="h-8 w-8" />
+                    <input type="radio" name="canvas_mode" value="move" class="" />
+                </label>
+                <label>
+                    <.icon name="hero-paint-brush" class="h-8 w-8" />
+                    <input type="radio" name="canvas_mode" value="draw" class="" />
+                </label>
+            </form>
+        </div>
     </div>
 </section>
 
