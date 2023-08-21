@@ -23,6 +23,7 @@ defmodule PlaygroundWeb.Router do
     get "/room", PageController, :room
 
     live "/light", LightLive
+    live "/rooms", RoomsLive
   end
 
   scope "/auth", PlaygroundWeb do

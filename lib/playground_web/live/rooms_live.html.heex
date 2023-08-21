@@ -1,0 +1,21 @@
+<h1>Room List</h1>
+<ul>
+    <li :for={room <- @rooms}>
+        <%= room.name %>
+    </li>
+</ul>
+<.form
+    for={@changeset}
+    phx-change="new_room:validate"
+    phx-submit="new_room:create"
+>
+    <input name="new_room[name]" type="text" />
+    <button
+        type="submit"
+        phx-disable-with="Saving..."
+        class={[
+            button_valid(@valid),
+        ]}
+        disabled={@valid != true}
+    >Add New Room</button>
+</.form>
