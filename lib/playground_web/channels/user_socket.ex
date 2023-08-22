@@ -11,7 +11,7 @@ defmodule PlaygroundWeb.UserSocket do
   channel "canvas:*", PlaygroundWeb.CanvasChannel
 
   def connect(%{"token" => token}, socket, _connect_info) do
-    case Phoenix.Token.verify(socket, "user socket", token, max_age: 1_209_600) do
+    case Playground.Auth.Token.verify(token) do
       {:ok, user_id} ->
         {:ok, assign(socket, :user_id, user_id)}
 

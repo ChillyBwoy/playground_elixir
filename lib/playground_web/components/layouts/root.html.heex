@@ -24,9 +24,9 @@
         </ul>
         <ul class="flex gap-8">
           <li class="flex items-center gap-2">
-            <%= if @conn.assigns[:user] do %>
+            <%= if @conn.assigns[:current_user] do %>
               <.link navigate={~p"/auth/signout"} class="text-white font-mono text-xl">Signout</.link>
-              <img src={@conn.assigns[:user].avatar_url} class="rounded-full" width="32" height="32" />
+              <img src={@conn.assigns[:current_user].avatar_url} class="rounded-full" width="32" height="32" />
             <% else %>
               <.link navigate={~p"/auth/signin/github"} class="text-white font-mono text-xl">Signin</.link>
             <% end %>

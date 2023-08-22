@@ -2,20 +2,28 @@ defmodule PlaygroundWeb.RoomsLive do
   use PlaygroundWeb, :live_view
 
   alias Playground.Auth
+  alias Playground.Auth.User
+  alias Playground.Auth.Token, as: Token
   alias Playground.Chat
   alias Playground.Chat.Room
 
   @impl true
   def mount(_params, session, socket) do
-    new_room = %Room{:user_id => session["user_id"]}
+    token = session["user_token"]
+
+    IO.puts("\n\n**************")
+    IO.inspect(token)
+    IO.puts("**************\n\n")
+
+    new_room = %Room{}
     changeset = Chat.change_room(new_room)
 
     {:ok,
-    socket
-    |> assign(:rooms, Chat.list_rooms())
-    |> assign(:new_room, new_room)
-    |> assign(:changeset, changeset)
-    |> assign(:valid, false)}
+     socket
+      |> assign(:rooms, Chat.list_rooms())
+      |> assign(:new_room, new_room)
+      |> assign(:changeset, changeset)
+      |> assign(:valid, false)}
   end
 
   @impl true

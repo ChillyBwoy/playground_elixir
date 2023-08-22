@@ -1,27 +1,29 @@
 defmodule PlaygroundWeb.AuthController do
   use PlaygroundWeb, :controller
-  plug Ueberauth
+  alias Playground.Auth.Token, as: Token
 
   import Playground.Auth
 
-  def callback(%{assigns: %{ueberauth_auth: auth}} = conn, _params) do
-    new_user =
-      auth
-      |> user_from_oauth()
-      |> get_or_create_user()
+  plug Ueberauth
 
-    case new_user do
-      {:ok, user} ->
-        conn
-        |> put_session(:user_id, user.id)
-        # |> put_session(:id, auth.credentials.token)
-        # |> put_resp_cookie("session_id", auth.credentials.token, [http_only: true])
+  def callback(%{assigns: %{ueberauth_failure: _}} = conn, _params) do
+    conn
+    |> put_flash(:error, "Failed to authenticate.")
+    |> redirect(to: "/")
+  end
+
+  def callback(%{assigns: %{ueberauth_auth: auth}} = conn, _params) do
+    with {:ok, user_attrs} <- user_attrs_from_oauth(auth),
+         {:ok, user} <- get_or_create_user(user_attrs) do
+      conn
+        |> put_session(:user_token, Token.sign(%{user_id: user.id}))
         |> put_flash(:info, "Welcome, #{user.username}!")
         |> redirect(to: "/")
-
-      {:error, _changeset} ->
+    else
+      {:error, reason} ->
         conn
-        |> redirect(to: "/")
+          |> put_flash(:error, reason)
+          |> redirect(to: "/")
     end
   end
 

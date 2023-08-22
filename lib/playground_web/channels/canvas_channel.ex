@@ -2,18 +2,21 @@ defmodule PlaygroundWeb.CanvasChannel do
   use PlaygroundWeb, :channel
 
   import Ecto.UUID
-  import Playground.Auth
+
+  alias Playground.Auth, as: Auth
+  alias Playground.Auth.User
 
   @impl true
   def join("canvas:lobby", payload, socket) do
     if authorized?(payload) do
-      user_id = socket.assigns[:user_id]
+      user_token = socket.assigns[:user_token]
 
-      case get_user!(user_id) do
+      case Auth.get_user_by_token(user_token) do
+        %User{} = user ->
+          {:ok, %{id: user.id, avatar_url: user.avatar_url, username: user.username}, socket}
+
         nil ->
           {:error, %{reason: "unauthorized"}}
-        user ->
-          {:ok, %{id: user.id, avatar_url: user.avatar_url, username: user.username}, socket}
       end
     else
       {:error, %{reason: "unauthorized"}}
@@ -43,7 +46,7 @@ defmodule PlaygroundWeb.CanvasChannel do
 
   @impl true
   def handle_in("user:join", %{"id" => id}, socket) do
-    case get_user!(id) do
+    case Auth.get_user!(id) do
       nil ->
         {:noreply, socket}
       user ->
