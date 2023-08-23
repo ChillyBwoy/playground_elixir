@@ -21,6 +21,11 @@
           <li class="flex items-center">
             <.link navigate={~p"/info"} class="text-white font-mono text-xl">Info</.link>
           </li>
+          <%= if @conn.assigns[:current_user] do %>
+            <li class="flex items-center">
+              <.link navigate={~p"/rooms"} class="text-white font-mono text-xl">Rooms</.link>
+            </li>
+          <% end %>
         </ul>
         <ul class="flex gap-8">
           <li class="flex items-center gap-2">

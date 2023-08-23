@@ -1,21 +1,26 @@
-<h1>Room List</h1>
-<ul>
-    <li :for={room <- @rooms}>
+<.header class="text-center">Room List</.header>
+
+<.list>
+    <:item :for={room <- @rooms} title={room.id}>
         <%= room.name %>
-    </li>
-</ul>
-<.form
-    for={@changeset}
+    </:item>
+</.list>
+
+<.simple_form
+    for={@form}
     phx-change="new_room:validate"
     phx-submit="new_room:create"
 >
-    <input name="new_room[name]" type="text" />
-    <button
-        type="submit"
-        phx-disable-with="Saving..."
-        class={[
-            button_valid(@valid),
-        ]}
-        disabled={@valid != true}
-    >Add New Room</button>
-</.form>
+    <.error :if={@form.errors != []}>
+        Oops, something went wrong! Please check the errors below.
+    </.error>
+    <.input field={@form[:name]} type="text" placeholder="Room name" required />
+
+    <:actions>
+        <.button
+            type="submit"
+            phx-disable-with="Sending..."
+            class="w-full"
+        >Add New Room</.button>
+    </:actions>
+</.simple_form>
