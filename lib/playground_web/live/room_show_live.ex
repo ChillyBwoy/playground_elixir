@@ -1,4 +1,4 @@
-defmodule PlaygroundWeb.RoomsShowLive do
+defmodule PlaygroundWeb.RoomShowLive do
   use PlaygroundWeb, :live_view
 
   alias Playground.Auth.User

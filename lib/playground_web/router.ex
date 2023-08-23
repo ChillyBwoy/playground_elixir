@@ -32,8 +32,8 @@ defmodule PlaygroundWeb.Router do
 
     live_session :require_authenticated_user,
       on_mount: [{PlaygroundWeb.UserAuth, :ensure_authenticated}] do
-        live "/rooms", RoomsLive
-        live "/rooms/:id", RoomsShowLive
+        live "/rooms", RoomListLive
+        live "/rooms/:id", RoomShowLive
       end
   end
 
