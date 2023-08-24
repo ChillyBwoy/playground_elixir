@@ -2,15 +2,12 @@ defmodule PlaygroundWeb.RoomListLive do
   use PlaygroundWeb, :live_view
 
   alias Playground.Auth.User
-  alias Playground.Chat
+
   alias Playground.Chat.Room
 
   @impl true
   def mount(_params, _session, %{assigns: %{ current_user: %User{} = user }} = socket) do
-    {:ok,
-     socket
-      |> assign(:current_user, user)
-      |> assign(:rooms, Chat.list_rooms())}
+    {:ok, assign(socket, :current_user, user)}
   end
 
   @impl true

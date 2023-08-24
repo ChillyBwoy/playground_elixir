@@ -1,21 +1,21 @@
 <div>
-    <.simple_form
+    <.form
         for={@form}
         phx-target={@myself}
         phx-change="room_form:validate"
         phx-submit="room_form:create"
+        class="flex flex-col gap-4"
     >
-        <.error :if={@form.errors != []}>
-            Oops, something went wrong! Please check the errors below.
-        </.error>
         <.input field={@form[:name]} type="text" placeholder="Room name" required />
 
-        <:actions>
-            <.button
-                type="submit"
-                phx-disable-with="Sending..."
-                class="w-full"
-            >Add New Room</.button>
-        </:actions>
-    </.simple_form>
+        <.button
+            type="submit"
+            phx-disable-with="Sending..."
+            class="w-full"
+        >Add New Room</.button>
+
+        <.error :if={@form.errors != []}>
+            The form has errors, please check the fields below.
+        </.error>
+    </.form>
 </div>
