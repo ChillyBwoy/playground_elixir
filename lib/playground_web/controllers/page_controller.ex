@@ -1,6 +1,8 @@
 defmodule PlaygroundWeb.PageController do
   use PlaygroundWeb, :controller
-  plug PlaygroundWeb.Plugs.RequireAuth when action in [:room]
+  import PlaygroundWeb.UserAuth
+
+  plug :require_authenticated_user when action in [:canvas]
 
   def home(conn, _params) do
     # The home page is often custom made,
@@ -8,8 +10,8 @@ defmodule PlaygroundWeb.PageController do
     render(conn, :home, layout: false)
   end
 
-  def room(conn, _params) do
-    render(conn, :room, layout: false)
+  def canvas(conn, _params) do
+    render(conn, :canvas, layout: false)
   end
 
   def info(conn, _params) do

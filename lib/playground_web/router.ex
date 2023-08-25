@@ -1,6 +1,8 @@
 defmodule PlaygroundWeb.Router do
   use PlaygroundWeb, :router
 
+  import PlaygroundWeb.UserAuth
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -8,7 +10,7 @@ defmodule PlaygroundWeb.Router do
     plug :put_root_layout, html: {PlaygroundWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
-    plug PlaygroundWeb.Plugs.SetUser
+    plug :fetch_current_user
   end
 
   pipeline :api do
@@ -20,9 +22,19 @@ defmodule PlaygroundWeb.Router do
 
     get "/", PageController, :home
     get "/info", PageController, :info
-    get "/room", PageController, :room
+    get "/canvas", PageController, :canvas
 
     live "/light", LightLive
+  end
+
+  scope "/", PlaygroundWeb do
+    pipe_through [:browser, :require_authenticated_user]
+
+    live_session :require_authenticated_user,
+      on_mount: [{PlaygroundWeb.UserAuth, :ensure_authenticated}] do
+        live "/rooms", RoomListLive
+        live "/rooms/:id", RoomShowLive
+      end
   end
 
   scope "/auth", PlaygroundWeb do

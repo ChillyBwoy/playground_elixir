@@ -5,7 +5,7 @@ defmodule Playground.Auth do
 
   import Ecto.Query, warn: false
   alias Playground.Repo
-
+  alias Playground.Auth.Token, as: Token
   alias Playground.Auth.User
 
   @doc """
@@ -102,28 +102,37 @@ defmodule Playground.Auth do
     User.changeset(user, attrs)
   end
 
-  def user_from_oauth(%{info: info, provider: :github}) do
-    %{
+  def user_attrs_from_oauth(%{info: %{nickname: nickname, email: email, image: image}, provider: :github}) do
+    {:ok, %{
       provider: "github",
-      username: info.nickname,
-      email: info.email,
-      avatar_url: info.image
-    }
+      username: nickname,
+      email: email,
+      avatar_url: image
+    }}
   end
 
-  def user_from_oauth(_attrs) do
-    raise "not implemented"
+  def user_attrs_params_from_oauth(_attrs) do
+    {:error, "No user params found"}
   end
 
-  def get_or_create_user(attrs) do
-    changeset = User.changeset(%User{}, attrs)
-
-    case Repo.get_by(User, email: changeset.changes.email) do
+  def get_or_create_user(%{provider: _, username: _, email: _, avatar_url: _} = attrs) do
+    case Repo.get_by(User, email: attrs.email) do
       nil ->
-        Repo.insert(changeset)
-
+        %User{}
+          |> User.changeset(attrs)
+          |> Repo.insert()
       user ->
         {:ok, user}
+    end
+  end
+
+  def get_user_by_token(token) do
+    with {:ok, %{user_id: user_id}} <- Token.verify(token),
+         user <- Repo.get(User, user_id)
+    do
+      user
+    else
+      _ -> nil
     end
   end
 end

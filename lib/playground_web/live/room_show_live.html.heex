@@ -1,0 +1,8 @@
+<.header class="text-center">
+    <%= @room.name %>
+    <:subtitle>
+        by <.user_avatar user={@room.owner} />
+    </:subtitle>
+</.header>
+
+<.back navigate={~p"/rooms"}>Back to room list</.back>
