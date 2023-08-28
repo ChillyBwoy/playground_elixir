@@ -5,4 +5,13 @@
     </:subtitle>
 </.header>
 
+<.message_list messages={@messages}/>
+
+<.live_component
+    module={PlaygroundWeb.MessageFormComponent}
+    id="new_message_form"
+    user_id={@current_user.id}
+    room_id={@room.id}
+/>
+
 <.back navigate={~p"/rooms"}>Back to room list</.back>

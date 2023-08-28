@@ -4,9 +4,11 @@ defmodule Playground.Chat do
   """
 
   import Ecto.Query, warn: false
+  alias Expo.Message
   alias Playground.Repo
 
   alias Playground.Chat.Room
+  alias Playground.Chat.Message
 
   @doc """
   Returns the list of rooms.
@@ -100,5 +102,21 @@ defmodule Playground.Chat do
   """
   def change_room(%Room{} = room, attrs \\ %{}) do
     Room.changeset(room, attrs)
+  end
+
+
+  def create_message(attrs \\ %{}) do
+    %Message{}
+    |> Message.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  def change_message(%Message{} = message, attrs \\ %{}) do
+    Message.changeset(message, attrs)
+  end
+
+  def get_messages_for_room(room_id) do
+    from(m in Message, where: m.room_id == ^room_id)
+    |> Repo.all()
   end
 end

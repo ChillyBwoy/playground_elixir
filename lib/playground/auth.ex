@@ -135,4 +135,10 @@ defmodule Playground.Auth do
       _ -> nil
     end
   end
+
+  def get_user_map_by_ids(id_list) do
+    from(u in User, where: u.id in ^id_list, select: {u.id, u})
+      |> Repo.all()
+      |> Map.new()
+  end
 end
