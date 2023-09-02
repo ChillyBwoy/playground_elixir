@@ -4,10 +4,12 @@ defmodule PlaygroundWeb.RoomComponents do
 
   import PlaygroundWeb.UserComponents
 
+  attr :class, :string, default: nil
   attr :rooms, :list, required: true
+
   def room_list(assigns) do
     ~H"""
-    <ul class="flex flex-col gap-4">
+    <ul class={["flex flex-col gap-4", @class]}>
       <li :for={room <- @rooms} class="grid grid-cols-[10%_1fr_20%]">
         <div>
           <.user_avatar user={room.owner} />

@@ -6,17 +6,19 @@ interface CanvasRendererOptions {
   gridSize: number;
   gridColor: string;
   bgColor: string;
+  width: number;
+  height: number;
 }
 
 export class CanvasRenderer {
   private options: CanvasRendererOptions;
 
   public stage: Konva.Stage;
+  public drawLayer: Konva.Layer;
+  public userLayer: Konva.Layer;
 
   private backgroundLayer: Konva.Layer;
   private gridLayer: Konva.Layer;
-  public drawLayer: Konva.Layer;
-  public userLayer: Konva.Layer;
 
   private grid: CanvasGrid;
   private scale: CanvasScale;
@@ -25,8 +27,8 @@ export class CanvasRenderer {
     this.options = options;
     this.stage = new Konva.Stage({
       container: id,
-      width: 3000,
-      height: 3000,
+      width: options.width,
+      height: options.height,
       draggable: true,
     });
 

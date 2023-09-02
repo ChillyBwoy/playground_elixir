@@ -8,8 +8,10 @@ defmodule PlaygroundWeb.RoomShowLive do
   alias Playground.Repo
 
   @impl true
-  def mount(_params, _session, %{assigns: %{ current_user: %User{} }} = socket) do
-    {:ok, socket}
+  def mount(_params, %{"user_token" => user_token}, %{assigns: %{ current_user: %User{} }} = socket) do
+    {:ok,
+      socket
+        |> assign(:user_token, user_token)}
   end
 
   @impl true

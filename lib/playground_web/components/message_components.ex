@@ -4,19 +4,19 @@ defmodule PlaygroundWeb.MessageComponents do
 
   import PlaygroundWeb.UserComponents
 
+  attr :class, :string, default: nil
   attr :messages, :list, required: true
+
   def message_list(assigns) do
     ~H"""
-    <ul class="flex flex-col gap-4">
-      <li :for={message <- @messages} class="grid grid-cols-[10%_1fr_20%]">
+    <ul class={["flex flex-col gap-4", @class]}>
+      <li :for={message <- @messages} class="grid gap-2 grid-cols-[auto_1fr]">
         <div>
           <.user_avatar user={message.author} />
         </div>
         <div>
-          <%= message.content %>
-        </div>
-        <div class="whitespace-nowrap text-right">
-          <%= message.inserted_at %>
+          <div class="whitespace-nowrap text-xs"><%= message.inserted_at %></div>
+          <p><%= message.content %></p>
         </div>
       </li>
     </ul>

@@ -5,17 +5,18 @@ defmodule PlaygroundWeb.MessageFormComponent do
   alias Playground.Chat.Message
   alias Playground.Auth
 
+  defp new_form do
+    %Message{}
+      |> Chat.change_message()
+      |> to_form(as: :message_form)
+  end
+
   @impl true
   def update(assigns, socket) do
-    form =
-      %Message{}
-        |> Chat.change_message()
-        |> to_form(as: :message_form)
-
     {:ok,
      socket
       |> assign(assigns)
-      |> assign(:form, form)}
+      |> assign(:form, new_form())}
   end
 
   @impl true
@@ -41,7 +42,10 @@ defmodule PlaygroundWeb.MessageFormComponent do
 
         user = Auth.get_user!(user_id)
         send(self(), {:message_created, message |> Map.put(:author, user)})
-        {:noreply, socket}
+
+        {:noreply,
+          socket
+            |> assign(:form, new_form())}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply,
