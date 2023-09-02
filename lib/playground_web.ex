@@ -86,6 +86,8 @@ defmodule PlaygroundWeb do
       # Core UI components and translation
       import PlaygroundWeb.CoreComponents
       import PlaygroundWeb.UserComponents
+      import PlaygroundWeb.RoomComponents
+      import PlaygroundWeb.MessageComponents
       import PlaygroundWeb.Gettext
 
       # Shortcut for generating JS commands

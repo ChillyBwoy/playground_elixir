@@ -8,6 +8,7 @@ defmodule Playground.Chat.Room do
     field :name, :string
 
     belongs_to :owner, Playground.Auth.User, foreign_key: :user_id
+    has_many :messages, Playground.Chat.Message
 
     timestamps()
   end
