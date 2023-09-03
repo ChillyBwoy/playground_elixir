@@ -22,6 +22,7 @@ import { Socket } from "phoenix";
 import { LiveSocket } from "phoenix_live_view";
 import topbar from "topbar";
 
+import { createHook } from "./lib/PhoenixLiveHook";
 import { CanvasHook } from "./hooks/canvas";
 
 let csrfToken = document
@@ -33,7 +34,7 @@ let liveSocket = new LiveSocket("/live", Socket, {
     _csrf_token: csrfToken,
   },
   hooks: {
-    CanvasHook,
+    CanvasHook: createHook(CanvasHook),
   },
 });
 

@@ -19,6 +19,8 @@ export class CanvasSettingsForm {
       },
     });
     this.$form.addEventListener("change", this.handleFormChange);
+
+    this.onChange(this.data);
   }
 
   private handleFormChange = (evt: Event) => {

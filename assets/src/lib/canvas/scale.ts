@@ -5,11 +5,16 @@ import { range } from "../range";
 export class CanvasScale {
   private scaleRange = range(0.5, 5, 0.25);
   private scale = 1;
+  private isActive = true;
 
   constructor(private stage: Konva.Stage) {}
 
   private handleScale = (event: Konva.KonvaEventObject<WheelEvent>) => {
     event.evt.preventDefault();
+
+    if (!this.isActive) {
+      return;
+    }
 
     const oldScale = this.stage.scaleX();
     const pointer = this.stage.getPointerPosition()!;
@@ -45,5 +50,9 @@ export class CanvasScale {
   init() {
     this.stage.scale({ x: this.scale, y: this.scale });
     this.stage.on("wheel", this.handleScale);
+  }
+
+  toggleActive(value: boolean) {
+    this.isActive = value;
   }
 }

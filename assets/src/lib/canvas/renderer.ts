@@ -68,6 +68,11 @@ export class CanvasRenderer {
     return this;
   }
 
+  toggleScale(value: boolean) {
+    this.scale.toggleActive(value);
+    return this;
+  }
+
   render() {
     this.backgroundLayer.draw();
     this.grid.render();

@@ -97,18 +97,15 @@ export abstract class LiveViewHook implements LiveViewHookBase {
   ): void {}
 }
 
+const methodsToSkip = ["constructor"];
+
 export function createHook(hook: typeof LiveViewHook): LiveViewHook {
-  const methodsToSkip = ["constructor", "init"];
   const methodNames = Object.getOwnPropertyNames(hook.prototype).filter(
     (name) => !methodsToSkip.includes(name)
   ) as Array<keyof LiveViewHookBase>;
 
   const methods = methodNames.map((name) => [name, hook.prototype[name]]);
   const inst = Object.fromEntries(methods);
-
-  if (inst.init) {
-    inst.init();
-  }
 
   return inst;
 }
