@@ -1,23 +1,31 @@
-import { Socket } from "phoenix";
+import { Channel, Socket } from "phoenix";
 
 import { CanvasRenderer } from "../lib/canvas/renderer";
 import { CanvasSettingsForm } from "../lib/canvas/settings_form";
 import { LiveViewHook } from "../lib/PhoenixLiveHook";
 
 export class CanvasHook extends LiveViewHook {
-  mounted() {
-    const userToken = this.el.dataset.userToken;
-    const roomId = this.el.dataset.roomId;
+  private channel: Channel | null = null;
+  private socket: Socket | null = null;
 
-    if (!userToken || !roomId) {
+  mounted() {
+    const roomId = this.el.dataset.roomId;
+    const userToken = this.el.dataset.userToken;
+
+    if (!roomId || !userToken) {
       return;
     }
 
-    const socket = new Socket("/socket", { params: { token: userToken } });
-    socket.connect();
+    this.socket = new Socket("/socket", { params: { token: userToken } });
+    this.socket.connect();
 
-    const channel = socket.channel(`canvas:${roomId}`, {});
-    channel
+    this.channel = this.socket.channel(`canvas:${roomId}`, {});
+
+    this.channel.on("presence_state", (state) => {
+      console.log(":: handle presence_state ::", state);
+    });
+
+    this.channel
       .join()
       .receive("ok", (resp) => {
         console.log("Joined successfully", resp);
@@ -44,5 +52,14 @@ export class CanvasHook extends LiveViewHook {
     );
 
     renderer.render();
+  }
+
+  disconnected(): void {
+    this.channel?.off("presence_state");
+    this.channel?.leave();
+    this.channel = null;
+
+    this.socket?.disconnect();
+    this.socket = null;
   }
 }

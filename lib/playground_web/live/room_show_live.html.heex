@@ -9,15 +9,19 @@
         </.header>
 
         <section
-            class="grid grid-cols-[1fr_20rem] gap-6 h-[calc(100vh-10rem)]"
+            class="grid grid-cols-[10rem_1fr_20rem] gap-2 h-[calc(100vh-10rem)]"
             id="canvas-hook"
             phx-hook="CanvasHook"
             data-room-id={@room.id}
             data-user-token={@user_token}
         >
-            <div id="canvas" class="bg-gray-200 overflow-hidden"></div>
+            <div class="px-2 grid bg-neutral-100">
+                user list
+            </div>
 
-            <div class="px-4 grid grid-rows-[auto_1fr_auto] bg-slate-500">
+            <div id="canvas" class="bg-neutral-300 overflow-hidden"></div>
+
+            <div class="px-2 grid grid-rows-[auto_1fr_auto] bg-neutral-100">
                 <div class="p-4">
                     <.canvas_form id="canvas_settings_form" />
                 </div>

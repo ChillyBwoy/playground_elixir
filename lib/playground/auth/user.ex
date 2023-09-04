@@ -4,6 +4,7 @@ defmodule Playground.Auth.User do
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
+  @derive {Jason.Encoder, only: [:id, :username, :avatar_url]}
   schema "users" do
     field :username, :string
     field :provider, :string

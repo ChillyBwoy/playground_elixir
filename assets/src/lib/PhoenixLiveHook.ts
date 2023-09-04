@@ -1,6 +1,6 @@
 import { LiveSocket } from "phoenix_live_view";
 
-interface LiveViewHookBase {
+interface LiveViewHookObject {
   mounted(): void;
   beforeUpdate(): void;
   updated(): void;
@@ -9,11 +9,9 @@ interface LiveViewHookBase {
   reconnected(): void;
 }
 
-export abstract class LiveViewHook implements LiveViewHookBase {
+export abstract class LiveViewHook implements LiveViewHookObject {
   el!: HTMLElement;
   liveSocket!: LiveSocket;
-
-  init(): void {}
 
   /**
    * The element has been added to the DOM and its server LiveView has finished mounting
@@ -97,15 +95,15 @@ export abstract class LiveViewHook implements LiveViewHookBase {
   ): void {}
 }
 
-const methodsToSkip = ["constructor"];
+export function createHook(inst: LiveViewHook): LiveViewHookObject {
+  const hook: LiveViewHookObject = {
+    mounted: inst.mounted,
+    beforeUpdate: inst.beforeUpdate,
+    updated: inst.updated,
+    destroyed: inst.destroyed,
+    disconnected: inst.disconnected,
+    reconnected: inst.reconnected,
+  };
 
-export function createHook(hook: typeof LiveViewHook): LiveViewHook {
-  const methodNames = Object.getOwnPropertyNames(hook.prototype).filter(
-    (name) => !methodsToSkip.includes(name)
-  ) as Array<keyof LiveViewHookBase>;
-
-  const methods = methodNames.map((name) => [name, hook.prototype[name]]);
-  const inst = Object.fromEntries(methods);
-
-  return inst;
+  return hook;
 }
