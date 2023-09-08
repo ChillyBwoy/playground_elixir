@@ -21,10 +21,7 @@ import "phoenix_html";
 import { Socket } from "phoenix";
 import { LiveSocket } from "phoenix_live_view";
 import topbar from "topbar";
-import { createHook } from "./lib/PhoenixLiveHook";
-import { CanvasHook } from "./hooks/canvas";
-
-// import { CanvasHook } from "./hooks/canvas";
+import { canvasHook } from "./hooks/canvas";
 
 const csrfToken = document
   ?.querySelector("meta[name='csrf-token']")
@@ -34,14 +31,16 @@ const userToken = document
   ?.querySelector("meta[name='user-token']")
   ?.getAttribute("content");
 
-// const canvasHook = new CanvasHook(socket);
+const socket = new Socket("/socket", { params: { token: userToken } });
+socket.connect();
 
 let liveSocket = new LiveSocket("/live", Socket, {
   params: {
     _csrf_token: csrfToken,
   },
   hooks: {
-    CanvasHook: createHook(new CanvasHook()),
+    // CanvasHook: createHook(new CanvasHook()),
+    CanvasHook: canvasHook(socket),
   },
 });
 

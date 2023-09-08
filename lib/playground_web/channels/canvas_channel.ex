@@ -2,13 +2,21 @@ defmodule PlaygroundWeb.CanvasChannel do
   use PlaygroundWeb, :channel
 
   alias Playground.Auth.User
+  alias Playground.Chat
+  alias Playground.Chat.Room
   alias PlaygroundWeb.Presence
 
   @impl true
-  def join("canvas:" <> _room_id, payload, socket) do
+  def join("canvas:" <> room_id, payload, %{assigns: %{current_user: %User{} = current_user}} = socket) do
     if authorized?(payload) do
-      send(self(), :after_join)
-      {:ok, socket}
+
+      case Chat.get_room!(room_id) do
+        %Room{} = room ->
+          send(self(), :after_join)
+          {:ok, %{current_user: current_user, room: room}, socket}
+        nil ->
+          {:error, %{reason: "invalid room"}}
+      end
     else
       {:error, %{reason: "unauthorized"}}
     end
@@ -24,11 +32,17 @@ defmodule PlaygroundWeb.CanvasChannel do
     {:noreply, socket}
   end
 
-  # @impl true
-  # def handle_in("user:move", %{"id" => id, "x" => x, "y" => y}, socket) do
-  #   broadcast!(socket, "user:moved", %{id: id, x: x, y: y})
+  # def handle_info(topic, socket) do
+  #   IO.inspect("!!!!!!!")
+  #   IO.inspect(topic)
   #   {:noreply, socket}
   # end
+
+  @impl true
+  def handle_in("user:move", %{"user_id" => user_id, "x" => x, "y" => y}, socket) do
+    broadcast!(socket, "user:move", %{user_id: user_id, x: x, y: y})
+    {:noreply, socket}
+  end
 
   # @impl true
   # def handle_in("dot:create", %{"dot" => dot}, socket) do

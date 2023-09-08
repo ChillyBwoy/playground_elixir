@@ -13,4 +13,19 @@ defmodule PlaygroundWeb.Presence do
       {key, %{metas: metas, user: users[key]}}
     end
   end
+
+  # @impl true
+  # def init(_opts) do
+  #   {:ok, %{}}
+  # end
+
+  # @impl true
+  # def handle_metas(topic, %{joins: joins, leaves: leaves}, presences, state) do
+  #   for {_, presence} <- joins do
+  #     msg = {:user_joined, presence.user}
+  #     Phoenix.PubSub.local_broadcast(Playground.PubSub, topic, msg)
+  #   end
+
+  #   {:ok, state}
+  # end
 end

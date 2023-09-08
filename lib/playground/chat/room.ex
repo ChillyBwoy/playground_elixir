@@ -4,6 +4,7 @@ defmodule Playground.Chat.Room do
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
+  @derive {Jason.Encoder, only: [:id, :name]}
   schema "rooms" do
     field :name, :string
 

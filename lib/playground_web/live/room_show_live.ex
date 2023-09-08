@@ -1,11 +1,14 @@
 defmodule PlaygroundWeb.RoomShowLive do
   use PlaygroundWeb, :live_view
 
+  alias Playground.PubSub
   alias Playground.Auth
   alias Playground.Auth.User
   alias Playground.Chat
   alias Playground.Chat.Message
   alias Playground.Repo
+
+  @presence "room:presence"
 
   @impl true
   def mount(_params, %{"user_token" => user_token}, %{assigns: %{ current_user: %User{} }} = socket) do
