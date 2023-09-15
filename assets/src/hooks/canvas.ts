@@ -1,9 +1,14 @@
 import { Channel, Socket } from "phoenix";
 
-import { CanvasRenderer } from "../lib/canvas/renderer";
-import { CanvasSettingsForm } from "../lib/canvas/settings_form";
-import throttle from "lodash.throttle";
-import Konva from "konva";
+import {
+  CanvasBackground,
+  CanvasDraw,
+  CanvasGrid,
+  CanvasRenderer,
+  CanvasScale,
+  CanvasSettingsForm,
+  CanvasUsers,
+} from "../lib/canvas";
 import type { LiveViewHook, Room, User } from "../types/app";
 
 interface CanvasJoinResponse {
@@ -23,15 +28,14 @@ interface Props {
 }
 
 const EVENT_PRESENCE_STATE = "presence_state";
-const MOVE_THROTTLE = 200;
 
 export function canvasHook(socket: Socket) {
   let channel: Channel;
-  let renderer: CanvasRenderer;
-  let form: CanvasSettingsForm;
 
   function init(this: LiveViewHook, { user }: Props) {
-    renderer = new CanvasRenderer("canvas", {
+    const form = new CanvasSettingsForm("canvas_settings_form");
+
+    const renderer = new CanvasRenderer("canvas", {
       gridSize: 50,
       gridColor: "rgba(0, 0, 0, 0.1)",
       bgColor: "#fff",
@@ -39,42 +43,46 @@ export function canvasHook(socket: Socket) {
       height: 3000,
     });
 
-    const handleStageMove = throttle(
-      (_evt: Konva.KonvaEventObject<PointerEvent>) => {
-        var pos = renderer.stage.getRelativePointerPosition();
-        // channel.push("user:move", {
-        //   user_id: user.id,
-        //   x: pos.x,
-        //   y: pos.y,
-        // });
+    const scaleLayer = new CanvasScale(renderer.stage);
+    const backgroundLayer = new CanvasBackground(renderer.stage, {
+      bgColor: renderer.options.bgColor,
+    });
+    const drawLayer = new CanvasDraw(renderer.stage, {
+      onDrawLine(data) {
+        console.log(data);
       },
-      MOVE_THROTTLE
-    );
-    renderer.stage.on("pointermove", handleStageMove);
+    });
+    const gridLayer = new CanvasGrid(renderer.stage, {
+      gridSize: renderer.options.gridSize,
+      gridColor: renderer.options.gridColor,
+    });
+    const usersLayer = new CanvasUsers(renderer.stage, {
+      onMove(x, y) {
+        channel.push("user:move", { user_id: user.id, x, y });
+      },
+    });
 
-    form = new CanvasSettingsForm(
-      document.getElementById("canvas_settings_form") as HTMLFormElement,
-      (settings) => {
-        renderer.toggleDraggable(settings.mode === "move");
-        renderer.toggleScale(settings.mode === "move");
-        this.el.style.cursor = settings.mode === "move" ? "move" : "crosshair";
-      }
-    );
+    form.subscribe(renderer);
+    form.subscribe(drawLayer);
+    form.subscribe(gridLayer);
+
+    renderer.addLayer(scaleLayer);
+    renderer.addLayer(backgroundLayer);
+    renderer.addLayer(drawLayer);
+    renderer.addLayer(gridLayer);
+    renderer.addLayer(usersLayer);
+
+    renderer.render();
 
     channel.on("user:move", ({ user_id, x, y }: EventUserMoveResponse) => {
       if (user_id === user.id) {
         return;
       }
-
-      console.log(user_id, x, y);
     });
-
-    renderer.render();
   }
 
   return {
     disconnected(): void {
-      renderer.stage.off("pointermove");
       channel.off(EVENT_PRESENCE_STATE);
       channel.leave();
     },

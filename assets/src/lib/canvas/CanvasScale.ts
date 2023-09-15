@@ -1,8 +1,9 @@
 import Konva from "konva";
 
 import { range } from "../range";
+import { CanvasLayer, CanvasSettings } from "./CanvasBase";
 
-export class CanvasScale {
+export class CanvasScale implements CanvasLayer {
   private scaleRange = range(0.5, 5, 0.25);
   private scale = 1;
   private isActive = true;
@@ -52,7 +53,11 @@ export class CanvasScale {
     this.stage.on("wheel", this.handleScale);
   }
 
-  toggleActive(value: boolean) {
-    this.isActive = value;
+  settingsUpdated = (settings: CanvasSettings) => {
+    this.isActive = settings.mode === "move";
+  };
+
+  destroy() {
+    this.stage.off("wheel", this.handleScale);
   }
 }
