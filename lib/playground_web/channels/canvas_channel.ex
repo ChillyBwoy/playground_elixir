@@ -41,6 +41,16 @@ defmodule PlaygroundWeb.CanvasChannel do
     {:noreply, socket}
   end
 
+  @impl true
+  def handle_in("user:draw", %{"user_id" => user_id, "data" => data}, socket) do
+    {:noreply, socket}
+  end
+
+  def handle_in("user:draw_end", %{"user_id" => user_id, "data" => data}, socket) do
+    broadcast!(socket, "user:draw_end", %{user_id: user_id, data: data})
+    {:noreply, socket}
+  end
+
   # @impl true
   # def handle_in("dot:create", %{"dot" => dot}, socket) do
   #   new_dot =

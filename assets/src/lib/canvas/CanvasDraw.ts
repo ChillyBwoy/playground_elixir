@@ -83,6 +83,11 @@ export class CanvasDraw implements CanvasLayer, CanvasSettingsReceiver {
     this.allowDraw = settings.mode === "draw";
   };
 
+  drawLine(data: Konva.LineConfig): void {
+    const line = new Konva.Line(data);
+    this.layer.add(line);
+  }
+
   draw(): void {
     /*
     // Example

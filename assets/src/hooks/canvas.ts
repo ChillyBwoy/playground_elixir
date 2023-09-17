@@ -1,3 +1,4 @@
+import Konva from "konva";
 import { Channel, Socket } from "phoenix";
 
 import {
@@ -16,10 +17,15 @@ interface CanvasJoinResponse {
   canvas: Canvas;
 }
 
-interface EventUserMoveResponse {
+interface UserMoveResponse {
   user_id: string;
   x: number;
   y: number;
+}
+
+interface UserDrawEndResponse {
+  user_id: string;
+  data: Konva.LineConfig;
 }
 
 interface Props {
@@ -28,6 +34,12 @@ interface Props {
 }
 
 const EVENT_PRESENCE_STATE = "presence_state";
+
+const EVENTS = {
+  USER_MOVE: "user:move",
+  USER_DRAW: "user:draw",
+  USER_DRAW_END: "user:draw_end",
+};
 
 export function canvasHook(socket: Socket) {
   let channel: Channel;
@@ -47,12 +59,13 @@ export function canvasHook(socket: Socket) {
     const backgroundLayer = new CanvasBackground(renderer.stage, {
       bgColor: renderer.options.bgColor,
     });
+
     const drawLayer = new CanvasDraw(renderer.stage, {
       onDraw(data) {
-        console.log("draw", data);
+        channel.push(EVENTS.USER_DRAW, { user_id: user.id, data });
       },
       onDrawEnd(data) {
-        console.log("draw end", data);
+        channel.push(EVENTS.USER_DRAW_END, { user_id: user.id, data });
       },
     });
     const gridLayer = new CanvasGrid(renderer.stage, {
@@ -61,7 +74,7 @@ export function canvasHook(socket: Socket) {
     });
     const usersLayer = new CanvasUsers(renderer.stage, {
       onMove(x, y) {
-        channel.push("user:move", { user_id: user.id, x, y });
+        channel.push(EVENTS.USER_MOVE, { user_id: user.id, x, y });
       },
     });
 
@@ -78,10 +91,14 @@ export function canvasHook(socket: Socket) {
 
     renderer.render();
 
-    channel.on("user:move", ({ user_id, x, y }: EventUserMoveResponse) => {
+    channel.on(EVENTS.USER_MOVE, ({ user_id, x, y }: UserMoveResponse) => {
       if (user_id === user.id) {
         return;
       }
+    });
+
+    channel.on(EVENTS.USER_DRAW_END, ({ data }: UserDrawEndResponse) => {
+      drawLayer.drawLine(data);
     });
   }
 
