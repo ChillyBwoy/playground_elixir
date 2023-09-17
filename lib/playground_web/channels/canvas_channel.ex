@@ -2,35 +2,40 @@ defmodule PlaygroundWeb.CanvasChannel do
   use PlaygroundWeb, :channel
 
   alias Playground.Auth.User
-  alias Playground.Chat
-  alias Playground.Chat.Room
   alias Playground.Chalkboard
   alias Playground.Chalkboard.Canvas
-  alias Playground.Repo
 
   alias PlaygroundWeb.Presence
 
   @impl true
-  def join("canvas:" <> canvas_id, payload, %{assigns: %{current_user: %User{} = current_user}} = socket) do
-    if authorized?(payload) do
-      case Chalkboard.get_canvas!(canvas_id) do
-        %Canvas{} = canvas ->
-          send(self(), :after_join)
-          {:ok, %{current_user: current_user, canvas: canvas }, socket}
-        nil ->
-          {:error, %{reason: "invalid canvas id"}}
-      end
-    else
-      {:error, %{reason: "unauthorized"}}
+  def join(
+        "canvas:" <> canvas_id,
+        _payload,
+        %{assigns: %{current_user: %User{} = current_user}} = socket
+      ) do
+    case Chalkboard.get_canvas(canvas_id) do
+      %Canvas{} = canvas ->
+        send(self(), :after_join)
+        {:ok, %{current_user: current_user, canvas: canvas}, socket}
+
+      nil ->
+        {:error, %{reason: "invalid canvas id"}}
     end
   end
 
-  @impl true
   def handle_info(:after_join, %{assigns: %{current_user: %User{} = current_user}} = socket) do
-    {:ok, _} = Presence.track(socket, current_user.id, %{
-      joined: inspect(System.system_time(:second))
-    })
+    Presence.track_user(socket, current_user.id)
+    {:noreply, socket}
+  end
 
+  @impl true
+  def handle_info({PlaygroundWeb.PresenceClient, %{user_joined: _presence}}, socket) do
+    push(socket, "presence_state", Presence.list(socket))
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({PlaygroundWeb.PresenceClient, %{user_left: _presence}}, socket) do
     push(socket, "presence_state", Presence.list(socket))
     {:noreply, socket}
   end
@@ -42,27 +47,20 @@ defmodule PlaygroundWeb.CanvasChannel do
   end
 
   @impl true
-  def handle_in("user:draw", %{"user_id" => user_id, "data" => data}, socket) do
+  def handle_in("user:draw", %{"user_id" => _user_id, "data" => _data}, socket) do
+    # TODO: add realtime drawing
     {:noreply, socket}
   end
 
+  @impl true
   def handle_in("user:draw_end", %{"user_id" => user_id, "data" => data}, socket) do
+    # TODO: add save drawing
     broadcast!(socket, "user:draw_end", %{user_id: user_id, data: data})
     {:noreply, socket}
   end
 
-  # @impl true
-  # def handle_in("dot:create", %{"dot" => dot}, socket) do
-  #   new_dot =
-  #     dot
-  #     |> Map.put("id", generate())
-
-  #   broadcast!(socket, "dot:created", %{dot: new_dot})
-  #   {:noreply, socket}
-  # end
-
-  # Add authorization logic here as required.
-  defp authorized?(_payload) do
-    true
+  @impl true
+  def terminate(_reason, %{assigns: %{current_user: %User{} = current_user}} = socket) do
+    Presence.untrack_user(socket, current_user.id)
   end
 end

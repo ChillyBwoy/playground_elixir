@@ -9,19 +9,24 @@ defmodule PlaygroundWeb.RoomListLive do
   alias Playground.Chat.Room
 
   @impl true
-  def mount(_params, _session, %{assigns: %{ current_user: %User{} = user }} = socket) do
+  def mount(
+        _params,
+        %{"user_token" => user_token},
+        %{assigns: %{current_user: %User{} = user}} = socket
+      ) do
     {:ok,
-      socket
-        |> assign(:current_user, user)
-        |> assign(:rooms, fetch_room())}
+     socket
+     |> assign(:user_token, user_token)
+     |> assign(:current_user, user)
+     |> assign(:rooms, fetch_room())}
   end
 
   @impl true
   def handle_info({:room_created, %Room{} = room}, socket) do
     {:noreply,
      socket
-      |> put_flash(:info, "Room created successfully")
-      |> redirect(to: ~p"/rooms/#{room.id}")}
+     |> put_flash(:info, "Room created successfully")
+     |> redirect(to: ~p"/rooms/#{room.id}")}
   end
 
   defp fetch_room() do
@@ -29,9 +34,9 @@ defmodule PlaygroundWeb.RoomListLive do
 
     list_of_ids =
       rooms
-        |> Enum.map(& &1.user_id)
-        |> MapSet.new()
-        |> Enum.to_list()
+      |> Enum.map(& &1.user_id)
+      |> MapSet.new()
+      |> Enum.to_list()
 
     users = Auth.get_user_map_by_ids(list_of_ids)
 

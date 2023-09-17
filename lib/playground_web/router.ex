@@ -22,7 +22,6 @@ defmodule PlaygroundWeb.Router do
 
     get "/", PageController, :home
     get "/info", PageController, :info
-    get "/canvas", PageController, :canvas
 
     live "/light", LightLive
   end
@@ -32,9 +31,9 @@ defmodule PlaygroundWeb.Router do
 
     live_session :require_authenticated_user,
       on_mount: [{PlaygroundWeb.UserAuth, :ensure_authenticated}] do
-        live "/rooms", RoomListLive
-        live "/rooms/:id", RoomShowLive
-      end
+      live "/rooms", RoomListLive
+      live "/rooms/:id", RoomShowLive
+    end
   end
 
   scope "/auth", PlaygroundWeb do

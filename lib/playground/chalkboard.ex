@@ -37,6 +37,8 @@ defmodule Playground.Chalkboard do
   """
   def get_canvas!(id), do: Repo.get!(Canvas, id)
 
+  def get_canvas(id), do: Repo.get(Canvas, id)
+
   @doc """
   Creates a canvas.
 

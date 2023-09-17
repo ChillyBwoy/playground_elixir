@@ -1,45 +1,47 @@
 <main class="w-full">
-    <div class="flex flex-col">
+  <div class="flex flex-col">
+    <.header class="text-center h-20">
+      <%= @room.name %>
+      <:subtitle>
+        by <.user_avatar user={@room.owner} />
+      </:subtitle>
+    </.header>
 
-        <.header class="text-center h-20">
-            <%= @room.name %>
-            <:subtitle>
-                by <.user_avatar user={@room.owner} />
-            </:subtitle>
-        </.header>
+    <section class="grid grid-cols-[12rem_1fr_20rem] gap-2 h-[calc(100vh-10rem)]">
+      <div class="px-2 grid bg-neutral-100">
+        <ul class="flex flex-col gap-4">
+          <%= for {_, %{user: user}} <- @users do %>
+            <li class="grid gap-2 grid-cols-[auto_1fr]">
+              <.user_avatar user={user} />
+              <%= user.username %>
+            </li>
+          <% end %>
+        </ul>
+      </div>
 
-        <section class="grid grid-cols-[10rem_1fr_20rem] gap-2 h-[calc(100vh-10rem)]">
-            <div class="px-2 grid bg-neutral-100">
-                user list
-            </div>
+      <%= if @canvas do %>
+        <.live_component module={PlaygroundWeb.CanvasComponent} id="canvas" canvas={@canvas} />
+      <% else %>
+        <.live_component
+          module={PlaygroundWeb.CanvasFormComponent}
+          id="canvas_form"
+          room_id={@room.id}
+        />
+      <% end %>
 
-            <%= if @canvas do %>
-                <.live_component
-                    module={PlaygroundWeb.CanvasComponent}
-                    id="canvas"
-                    canvas={@canvas}
-                />
-            <% else %>
-                <.live_component
-                    module={PlaygroundWeb.CanvasFormComponent}
-                    id="canvas_form"
-                    room_id={@room.id}
-                />
-            <% end %>
-
-            <div class="px-2 grid grid-rows-[1fr_auto] bg-neutral-100">
-                <div class="overflow-scroll bg-white p-2">
-                    <.message_list messages={@messages} class="h-1" />
-                </div>
-                <div class="p-2">
-                    <.live_component
-                        module={PlaygroundWeb.MessageFormComponent}
-                        id="new_message_form"
-                        user_id={@current_user.id}
-                        room_id={@room.id}
-                    />
-                </div>
-            </div>
-        </section>
-    </div>
+      <div class="px-2 grid grid-rows-[1fr_auto] bg-neutral-100">
+        <div class="overflow-scroll bg-white p-2">
+          <.message_list messages={@messages} class="h-1" />
+        </div>
+        <div class="p-2">
+          <.live_component
+            module={PlaygroundWeb.MessageFormComponent}
+            id="new_message_form"
+            user_id={@current_user.id}
+            room_id={@room.id}
+          />
+        </div>
+      </div>
+    </section>
+  </div>
 </main>

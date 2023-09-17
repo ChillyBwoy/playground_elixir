@@ -33,13 +33,12 @@ interface Props {
   canvas: Canvas;
 }
 
-const EVENT_PRESENCE_STATE = "presence_state";
-
 const EVENTS = {
   USER_MOVE: "user:move",
   USER_DRAW: "user:draw",
   USER_DRAW_END: "user:draw_end",
-};
+  PRESENCE_STATE: "presence_state",
+} as const;
 
 export function canvasHook(socket: Socket) {
   let channel: Channel;
@@ -91,6 +90,8 @@ export function canvasHook(socket: Socket) {
 
     renderer.render();
 
+    const avatars = new Map<string, User>();
+
     channel.on(EVENTS.USER_MOVE, ({ user_id, x, y }: UserMoveResponse) => {
       if (user_id === user.id) {
         return;
@@ -100,19 +101,20 @@ export function canvasHook(socket: Socket) {
     channel.on(EVENTS.USER_DRAW_END, ({ data }: UserDrawEndResponse) => {
       drawLayer.drawLine(data);
     });
+
+    channel.on(EVENTS.PRESENCE_STATE, (state) => {
+      console.log(":: handle presence_state ::", state);
+    });
   }
 
   return {
-    disconnected(): void {
-      channel.off(EVENT_PRESENCE_STATE);
+    destroyed() {
+      console.log("disconnected");
+      channel.off(EVENTS.PRESENCE_STATE);
       channel.leave();
     },
     mounted() {
       channel = socket.channel(`canvas:${this.el.dataset.canvasId}`, {});
-
-      channel.on(EVENT_PRESENCE_STATE, (state) => {
-        console.log(":: handle presence_state ::", state);
-      });
 
       channel
         .join()

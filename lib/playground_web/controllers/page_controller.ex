@@ -10,10 +10,6 @@ defmodule PlaygroundWeb.PageController do
     render(conn, :home, layout: false)
   end
 
-  def canvas(conn, _params) do
-    render(conn, :canvas, layout: false)
-  end
-
   def info(conn, _params) do
     render(conn, :info, layout: false)
   end
