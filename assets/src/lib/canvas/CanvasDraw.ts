@@ -7,7 +7,8 @@ import type {
 } from "./CanvasBase";
 
 interface CanvasDrawOptions {
-  onDrawLine(data: Konva.LineConfig): void;
+  onDraw(data: Konva.LineConfig): void;
+  onDrawEnd(data: Konva.LineConfig): void;
 }
 
 export class CanvasDraw implements CanvasLayer, CanvasSettingsReceiver {
@@ -52,12 +53,8 @@ export class CanvasDraw implements CanvasLayer, CanvasSettingsReceiver {
   };
 
   private handleData = throttle((data: any) => {
-    this.options.onDrawLine(data);
+    this.options.onDraw(data);
   }, 200);
-
-  private handleMouseUp = () => {
-    this.isDrawing = false;
-  };
 
   private handleMouseMove = (event: Konva.KonvaEventObject<PointerEvent>) => {
     if (!this.isDrawing || !this.allowDraw || !this.lastLine) {
@@ -72,6 +69,14 @@ export class CanvasDraw implements CanvasLayer, CanvasSettingsReceiver {
     this.lastLine.points(newPoints);
 
     this.handleData(this.lastLine.toObject());
+  };
+
+  private handleMouseUp = () => {
+    this.isDrawing = false;
+    this.options.onDrawEnd(this.lastLine?.toObject());
+    this.lastLine?.remove();
+    this.lastLine?.destroy();
+    this.lastLine = null;
   };
 
   settingsUpdated = (settings: CanvasSettings) => {

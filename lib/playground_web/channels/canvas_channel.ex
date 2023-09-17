@@ -4,18 +4,21 @@ defmodule PlaygroundWeb.CanvasChannel do
   alias Playground.Auth.User
   alias Playground.Chat
   alias Playground.Chat.Room
+  alias Playground.Chalkboard
+  alias Playground.Chalkboard.Canvas
+  alias Playground.Repo
+
   alias PlaygroundWeb.Presence
 
   @impl true
-  def join("canvas:" <> room_id, payload, %{assigns: %{current_user: %User{} = current_user}} = socket) do
+  def join("canvas:" <> canvas_id, payload, %{assigns: %{current_user: %User{} = current_user}} = socket) do
     if authorized?(payload) do
-
-      case Chat.get_room!(room_id) do
-        %Room{} = room ->
+      case Chalkboard.get_canvas!(canvas_id) do
+        %Canvas{} = canvas ->
           send(self(), :after_join)
-          {:ok, %{current_user: current_user, room: room}, socket}
+          {:ok, %{current_user: current_user, canvas: canvas }, socket}
         nil ->
-          {:error, %{reason: "invalid room"}}
+          {:error, %{reason: "invalid canvas id"}}
       end
     else
       {:error, %{reason: "unauthorized"}}
@@ -31,12 +34,6 @@ defmodule PlaygroundWeb.CanvasChannel do
     push(socket, "presence_state", Presence.list(socket))
     {:noreply, socket}
   end
-
-  # def handle_info(topic, socket) do
-  #   IO.inspect("!!!!!!!")
-  #   IO.inspect(topic)
-  #   {:noreply, socket}
-  # end
 
   @impl true
   def handle_in("user:move", %{"user_id" => user_id, "x" => x, "y" => y}, socket) do

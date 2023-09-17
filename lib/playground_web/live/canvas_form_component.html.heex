@@ -1,0 +1,13 @@
+<div class="bg-neutral-300">
+    <.form
+        for={@form}
+        phx-target={@myself}
+        phx-change="canvas_form:validate"
+        phx-submit="canvas_form:submit"
+        class="flex flex-col gap-4"
+    >
+        <.input field={@form[:name]} type="text" placeholder="Enter the name" />
+
+        <.button type="submit" phx-disable-with="Creating..." class="w-full">Create</.button>
+    </.form>
+</div>

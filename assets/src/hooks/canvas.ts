@@ -9,11 +9,11 @@ import {
   CanvasSettingsForm,
   CanvasUsers,
 } from "../lib/canvas";
-import type { LiveViewHook, Room, User } from "../types/app";
+import type { Canvas, LiveViewHook, User } from "../types/app";
 
 interface CanvasJoinResponse {
   current_user: User;
-  room: Room;
+  canvas: Canvas;
 }
 
 interface EventUserMoveResponse {
@@ -24,7 +24,7 @@ interface EventUserMoveResponse {
 
 interface Props {
   user: User;
-  room: Room;
+  canvas: Canvas;
 }
 
 const EVENT_PRESENCE_STATE = "presence_state";
@@ -32,10 +32,10 @@ const EVENT_PRESENCE_STATE = "presence_state";
 export function canvasHook(socket: Socket) {
   let channel: Channel;
 
-  function init(this: LiveViewHook, { user }: Props) {
-    const form = new CanvasSettingsForm("canvas_settings_form");
+  function init(this: LiveViewHook, { user, canvas }: Props) {
+    const form = new CanvasSettingsForm(`${canvas.id}_form`);
 
-    const renderer = new CanvasRenderer("canvas", {
+    const renderer = new CanvasRenderer(`${canvas.id}_canvas`, {
       gridSize: 50,
       gridColor: "rgba(0, 0, 0, 0.1)",
       bgColor: "#fff",
@@ -48,8 +48,11 @@ export function canvasHook(socket: Socket) {
       bgColor: renderer.options.bgColor,
     });
     const drawLayer = new CanvasDraw(renderer.stage, {
-      onDrawLine(data) {
-        console.log(data);
+      onDraw(data) {
+        console.log("draw", data);
+      },
+      onDrawEnd(data) {
+        console.log("draw end", data);
       },
     });
     const gridLayer = new CanvasGrid(renderer.stage, {
@@ -63,6 +66,7 @@ export function canvasHook(socket: Socket) {
     });
 
     form.subscribe(renderer);
+    form.subscribe(scaleLayer);
     form.subscribe(drawLayer);
     form.subscribe(gridLayer);
 
@@ -87,7 +91,7 @@ export function canvasHook(socket: Socket) {
       channel.leave();
     },
     mounted() {
-      channel = socket.channel(`canvas:${this.el.dataset.roomId}`, {});
+      channel = socket.channel(`canvas:${this.el.dataset.canvasId}`, {});
 
       channel.on(EVENT_PRESENCE_STATE, (state) => {
         console.log(":: handle presence_state ::", state);
@@ -96,11 +100,12 @@ export function canvasHook(socket: Socket) {
       channel
         .join()
         .receive("ok", (resp: CanvasJoinResponse) => {
-          const payload = {
-            user: resp.current_user,
-            room: resp.room,
-          };
-          init.apply(this, [payload]);
+          init.apply(this, [
+            {
+              user: resp.current_user,
+              canvas: resp.canvas,
+            },
+          ]);
         })
         .receive("error", (resp) => {
           console.error("Unable to join", resp);

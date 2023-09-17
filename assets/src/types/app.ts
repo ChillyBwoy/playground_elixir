@@ -93,3 +93,8 @@ export interface Room {
   id: string;
   name: string;
 }
+
+export interface Canvas {
+  id: string;
+  name: string;
+}

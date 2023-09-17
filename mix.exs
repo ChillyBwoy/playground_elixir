@@ -52,7 +52,8 @@ defmodule Playground.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:ueberauth, "~> 0.10"},
       {:ueberauth_github, "~> 0.8"},
-      {:guardian, "~> 2.0"}
+      {:guardian, "~> 2.0"},
+      {:ecto_psql_extras, "~> 0.7"}
     ]
   end
 

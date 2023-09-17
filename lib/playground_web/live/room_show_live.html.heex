@@ -8,23 +8,26 @@
             </:subtitle>
         </.header>
 
-        <section
-            class="grid grid-cols-[10rem_1fr_20rem] gap-2 h-[calc(100vh-10rem)]"
-            id="canvas-hook"
-            phx-hook="CanvasHook"
-            data-room-id={@room.id}
-            data-user-token={@user_token}
-        >
+        <section class="grid grid-cols-[10rem_1fr_20rem] gap-2 h-[calc(100vh-10rem)]">
             <div class="px-2 grid bg-neutral-100">
                 user list
             </div>
 
-            <div id="canvas" class="bg-neutral-300 overflow-hidden"></div>
+            <%= if @canvas do %>
+                <.live_component
+                    module={PlaygroundWeb.CanvasComponent}
+                    id="canvas"
+                    canvas={@canvas}
+                />
+            <% else %>
+                <.live_component
+                    module={PlaygroundWeb.CanvasFormComponent}
+                    id="canvas_form"
+                    room_id={@room.id}
+                />
+            <% end %>
 
-            <div class="px-2 grid grid-rows-[auto_1fr_auto] bg-neutral-100">
-                <div class="p-4">
-                    <.canvas_form id="canvas_settings_form" />
-                </div>
+            <div class="px-2 grid grid-rows-[1fr_auto] bg-neutral-100">
                 <div class="overflow-scroll bg-white p-2">
                     <.message_list messages={@messages} class="h-1" />
                 </div>

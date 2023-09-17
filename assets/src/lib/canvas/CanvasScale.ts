@@ -1,9 +1,13 @@
 import Konva from "konva";
 
 import { range } from "../range";
-import { CanvasLayer, CanvasSettings } from "./CanvasBase";
+import type {
+  CanvasLayer,
+  CanvasSettings,
+  CanvasSettingsReceiver,
+} from "./CanvasBase";
 
-export class CanvasScale implements CanvasLayer {
+export class CanvasScale implements CanvasLayer, CanvasSettingsReceiver {
   private scaleRange = range(0.5, 5, 0.25);
   private scale = 1;
   private isActive = true;
