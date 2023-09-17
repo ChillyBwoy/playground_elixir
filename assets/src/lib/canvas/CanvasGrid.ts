@@ -1,30 +1,39 @@
 import Konva from "konva";
+import type {
+  CanvasLayer,
+  CanvasSettings,
+  CanvasSettingsReceiver,
+} from "./CanvasBase";
 
 interface CanvasGridOptions {
   gridSize: number;
   gridColor: string;
 }
 
-export class CanvasGrid {
-  constructor(
-    private stage: Konva.Stage,
-    private gridLayer: Konva.Layer,
-    private options: CanvasGridOptions
-  ) {}
+export class CanvasGrid implements CanvasLayer, CanvasSettingsReceiver {
+  private layer: Konva.Layer;
+
+  constructor(private stage: Konva.Stage, private options: CanvasGridOptions) {
+    this.layer = new Konva.Layer();
+  }
 
   private normalize(val: number) {
     return val / this.stage.scaleX();
   }
 
-  render() {
+  init(): void {
+    this.stage.add(this.layer);
+  }
+
+  draw() {
     const { gridSize, gridColor } = this.options;
     const width = this.stage.width();
     const height = this.stage.height();
     const position = this.stage.position();
 
-    this.gridLayer.clear();
-    this.gridLayer.destroyChildren();
-    this.gridLayer.clipWidth(0);
+    this.layer.clear();
+    this.layer.destroyChildren();
+    this.layer.clipWidth(0);
 
     const stageRect = {
       x1: 0,
@@ -70,7 +79,7 @@ export class CanvasGrid {
         stroke: gridColor,
         strokeWidth: 1,
       });
-      this.gridLayer.add(line);
+      this.layer.add(line);
     }
 
     for (let i = 0; i <= ySteps; i++) {
@@ -81,9 +90,21 @@ export class CanvasGrid {
         stroke: gridColor,
         strokeWidth: 1,
       });
-      this.gridLayer.add(line);
+      this.layer.add(line);
     }
 
-    this.gridLayer.batchDraw();
+    this.layer.batchDraw();
   }
+
+  destroy() {
+    this.layer.destroy();
+  }
+
+  settingsUpdated = (settings: CanvasSettings) => {
+    if (settings.showwGrid) {
+      this.layer.show();
+    } else {
+      this.layer.hide();
+    }
+  };
 }

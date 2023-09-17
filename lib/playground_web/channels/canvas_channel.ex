@@ -1,69 +1,65 @@
 defmodule PlaygroundWeb.CanvasChannel do
   use PlaygroundWeb, :channel
 
-  import Ecto.UUID
-
-  alias Playground.Auth, as: Auth
   alias Playground.Auth.User
+  alias Playground.Chat
+  alias Playground.Chat.Room
+  alias Playground.Chalkboard
+  alias Playground.Chalkboard.Canvas
+  alias Playground.Repo
+
+  alias PlaygroundWeb.Presence
 
   @impl true
-  def join("canvas:lobby", payload, socket) do
+  def join("canvas:" <> canvas_id, payload, %{assigns: %{current_user: %User{} = current_user}} = socket) do
     if authorized?(payload) do
-      user_token = socket.assigns[:user_token]
-
-      case Auth.get_user_by_token(user_token) do
-        %User{} = user ->
-          {:ok, %{id: user.id, avatar_url: user.avatar_url, username: user.username}, socket}
-
+      case Chalkboard.get_canvas!(canvas_id) do
+        %Canvas{} = canvas ->
+          send(self(), :after_join)
+          {:ok, %{current_user: current_user, canvas: canvas }, socket}
         nil ->
-          {:error, %{reason: "unauthorized"}}
+          {:error, %{reason: "invalid canvas id"}}
       end
     else
       {:error, %{reason: "unauthorized"}}
     end
   end
 
-  # Channels can be used in a request/response fashion
-  # by sending replies to requests from the client
   @impl true
-  def handle_in("ping", payload, socket) do
-    {:reply, {:ok, payload}, socket}
-  end
+  def handle_info(:after_join, %{assigns: %{current_user: %User{} = current_user}} = socket) do
+    {:ok, _} = Presence.track(socket, current_user.id, %{
+      joined: inspect(System.system_time(:second))
+    })
 
-  # It is also common to receive messages from the client and
-  # broadcast to everyone in the current topic (canvas:lobby).
-  @impl true
-  def handle_in("shout", payload, socket) do
-    broadcast(socket, "shout", payload)
+    push(socket, "presence_state", Presence.list(socket))
     {:noreply, socket}
   end
 
   @impl true
-  def handle_in("user:move", %{"id" => id, "x" => x, "y" => y}, socket) do
-    broadcast!(socket, "user:moved", %{id: id, x: x, y: y})
+  def handle_in("user:move", %{"user_id" => user_id, "x" => x, "y" => y}, socket) do
+    broadcast!(socket, "user:move", %{user_id: user_id, x: x, y: y})
     {:noreply, socket}
   end
 
   @impl true
-  def handle_in("user:join", %{"id" => id}, socket) do
-    case Auth.get_user!(id) do
-      nil ->
-        {:noreply, socket}
-      user ->
-        broadcast!(socket, "user:joined", %{id: user.id, avatar_url: user.avatar_url, username: user.username})
-        {:noreply, socket}
-    end
-  end
-
-  @impl true
-  def handle_in("dot:create", %{"dot" => dot}, socket) do
-    new_dot =
-      dot
-      |> Map.put("id", generate())
-
-    broadcast!(socket, "dot:created", %{dot: new_dot})
+  def handle_in("user:draw", %{"user_id" => user_id, "data" => data}, socket) do
     {:noreply, socket}
   end
+
+  def handle_in("user:draw_end", %{"user_id" => user_id, "data" => data}, socket) do
+    broadcast!(socket, "user:draw_end", %{user_id: user_id, data: data})
+    {:noreply, socket}
+  end
+
+  # @impl true
+  # def handle_in("dot:create", %{"dot" => dot}, socket) do
+  #   new_dot =
+  #     dot
+  #     |> Map.put("id", generate())
+
+  #   broadcast!(socket, "dot:created", %{dot: new_dot})
+  #   {:noreply, socket}
+  # end
 
   # Add authorization logic here as required.
   defp authorized?(_payload) do

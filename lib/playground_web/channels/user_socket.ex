@@ -1,6 +1,9 @@
 defmodule PlaygroundWeb.UserSocket do
   use Phoenix.Socket
 
+  alias Playground.Auth.User
+  alias Playground.Auth, as: Auth
+
   # A Socket handler
   #
   # It's possible to control the websocket connection and
@@ -11,11 +14,11 @@ defmodule PlaygroundWeb.UserSocket do
   channel "canvas:*", PlaygroundWeb.CanvasChannel
 
   def connect(%{"token" => token}, socket, _connect_info) do
-    case Playground.Auth.Token.verify(token) do
-      {:ok, user_id} ->
-        {:ok, assign(socket, :user_id, user_id)}
+    case Auth.get_user_by_token(token) do
+      %User{} = user ->
+        {:ok, assign(socket, :current_user, user)}
 
-      {:error, _} ->
+      nil ->
         :error
     end
   end

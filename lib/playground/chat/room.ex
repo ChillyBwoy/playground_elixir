@@ -4,11 +4,13 @@ defmodule Playground.Chat.Room do
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
+  @derive {Jason.Encoder, only: [:id, :name, :user_id]}
   schema "rooms" do
     field :name, :string
 
     belongs_to :owner, Playground.Auth.User, foreign_key: :user_id
     has_many :messages, Playground.Chat.Message
+    has_many :canvases, Playground.Chalkboard.Canvas
 
     timestamps()
   end

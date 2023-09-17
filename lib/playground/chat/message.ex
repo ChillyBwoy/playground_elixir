@@ -4,6 +4,7 @@ defmodule Playground.Chat.Message do
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
+  @derive {Jason.Encoder, only: [:id, :content, :room_id, :user_id, :inserted_at]}
   schema "messages" do
     field :content, :string
 

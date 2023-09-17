@@ -14,6 +14,7 @@ defmodule Playground.Application do
       Playground.Repo,
       # Start the PubSub system
       {Phoenix.PubSub, name: Playground.PubSub},
+      PlaygroundWeb.Presence,
       # Start Finch
       {Finch, name: Playground.Finch},
       # Start the Endpoint (http/https)

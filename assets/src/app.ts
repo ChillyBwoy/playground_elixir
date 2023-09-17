@@ -20,13 +20,28 @@ import "phoenix_html";
 // Establish Phoenix Socket and LiveView configuration.
 import { Socket } from "phoenix";
 import { LiveSocket } from "phoenix_live_view";
-import topbar from "../vendor/topbar";
+import topbar from "topbar";
+import { canvasHook } from "./hooks/canvas";
 
-let csrfToken = document
-  .querySelector("meta[name='csrf-token']")
-  .getAttribute("content");
+const csrfToken = document
+  ?.querySelector("meta[name='csrf-token']")
+  ?.getAttribute("content");
+
+const userToken = document
+  ?.querySelector("meta[name='user-token']")
+  ?.getAttribute("content");
+
+const socket = new Socket("/socket", { params: { token: userToken } });
+socket.connect();
+
 let liveSocket = new LiveSocket("/live", Socket, {
-  params: { _csrf_token: csrfToken },
+  params: {
+    _csrf_token: csrfToken,
+  },
+  hooks: {
+    // CanvasHook: createHook(new CanvasHook()),
+    CanvasHook: canvasHook(socket),
+  },
 });
 
 // Show progress bar on live navigation and form submits

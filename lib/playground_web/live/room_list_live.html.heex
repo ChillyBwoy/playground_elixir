@@ -1,10 +1,13 @@
-<div class="flex flex-col gap-6">
-    <.header class="text-center">Room List</.header>
-    <.live_component
-        module={PlaygroundWeb.RoomFormComponent}
-        id="new_room_form"
-        user_id={@current_user.id}
-    />
-
-    <.room_list rooms={@rooms} />
-</div>
+<main class="w-full">
+    <div class="flex flex-col gap-6">
+        <.header class="px-8 text-center h-20">Room List</.header>
+        <div class="px-8 grid grid-cols-[1fr_30%] gap-6">
+            <.room_list rooms={@rooms} />
+            <.live_component
+                module={PlaygroundWeb.RoomFormComponent}
+                id="new_room_form"
+                user_id={@current_user.id}
+            />
+        </div>
+  </div>
+</main>
