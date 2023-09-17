@@ -17,6 +17,7 @@ export class CanvasDraw implements CanvasLayer, CanvasSettingsReceiver {
   private lastLine: Konva.Line | null = null;
 
   private layer: Konva.Layer;
+  private stroke = "#000000";
 
   constructor(private stage: Konva.Stage, private options: CanvasDrawOptions) {
     this.layer = new Konva.Layer();
@@ -41,7 +42,7 @@ export class CanvasDraw implements CanvasLayer, CanvasSettingsReceiver {
     const pos = this.stage.getRelativePointerPosition();
 
     this.lastLine = new Konva.Line({
-      stroke: "rgba(217, 119, 6, 1)", // TODO: take from settings
+      stroke: this.stroke,
       strokeWidth: 10,
       globalCompositeOperation: "source-over",
       lineCap: "round",
@@ -72,15 +73,18 @@ export class CanvasDraw implements CanvasLayer, CanvasSettingsReceiver {
   };
 
   private handleMouseUp = () => {
+    if (this.isDrawing) {
+      this.options.onDrawEnd(this.lastLine?.toObject());
+      this.lastLine?.remove();
+      this.lastLine?.destroy();
+      this.lastLine = null;
+    }
     this.isDrawing = false;
-    this.options.onDrawEnd(this.lastLine?.toObject());
-    this.lastLine?.remove();
-    this.lastLine?.destroy();
-    this.lastLine = null;
   };
 
   settingsUpdated = (settings: CanvasSettings) => {
     this.allowDraw = settings.mode === "draw";
+    this.stroke = settings.color;
   };
 
   drawLine(data: Konva.LineConfig): void {

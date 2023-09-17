@@ -8,6 +8,7 @@ export class CanvasSettingsForm {
   private _data: CanvasSettings = {
     mode: "move",
     showwGrid: true,
+    color: "#000000",
   };
   private data: CanvasSettings;
 
@@ -22,6 +23,9 @@ export class CanvasSettingsForm {
         if (prop === "showwGrid") {
           target[prop] = Boolean(value);
         }
+        if (prop === "color") {
+          target[prop] = value;
+        }
 
         return true;
       },
@@ -34,6 +38,7 @@ export class CanvasSettingsForm {
     const formData = new FormData(evt.currentTarget as HTMLFormElement);
     this.data.mode = formData.get("mode") as CanvasSettings["mode"];
     this.data.showwGrid = formData.get("show_grid") === "on";
+    this.data.color = formData.get("color") as CanvasSettings["color"];
 
     this.notify();
   };

@@ -5,22 +5,28 @@
     data-canvas-id={@canvas.id}
 >
     <div class="p-4">
-        <form id={"#{@canvas.id}_form"} class="flex flex-col gap-4">
-            <div class="flex gap-4">
+        <form id={"#{@canvas.id}_form"} class="flex gap-2">
+            <div class="flex gap-2 after:bg-gray-500 after:w-0.5">
                 <label class="cursor-pointer">
                     <input type="radio" name="mode" value="move" class="hidden [&:checked+span]:bg-amber-400" checked />
-                    <.icon name="hero-arrows-pointing-out" class="h-8 w-8" />
+                    <.icon name="hero-arrows-pointing-out" class="h-8 w-8 bg-gray-600" />
                 </label>
                 <label class="cursor-pointer">
                     <input type="radio" name="mode" value="draw" class="hidden [&:checked+span]:bg-amber-400" />
-                    <.icon name="hero-paint-brush" class="h-8 w-8" />
+                    <.icon name="hero-paint-brush" class="h-8 w-8 bg-gray-600" />
                 </label>
             </div>
 
-            <div class="flex gap4">
+            <div class="flex gap-2 after:bg-gray-500 after:w-0.5">
                 <label class="cursor-pointer">
                     <input type="checkbox" name="show_grid" class="hidden [&:checked+span]:bg-amber-400" checked />
-                    <.icon name="hero-table-cells" class="h-8 w-8" />
+                    <.icon name="hero-table-cells" class="h-8 w-8 bg-gray-600" />
+                </label>
+            </div>
+
+            <div class="flex gap-2">
+                <label class="cursor-pointer flex flex-col justify-center">
+                    <input type="color" name="color" value="#000000" />
                 </label>
             </div>
         </form>

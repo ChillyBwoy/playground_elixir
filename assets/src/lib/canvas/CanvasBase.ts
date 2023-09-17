@@ -9,6 +9,7 @@ export interface CanvasOptions {
 export interface CanvasSettings {
   mode: "draw" | "move";
   showwGrid: boolean;
+  color: string;
 }
 
 export interface CanvasLayer {
