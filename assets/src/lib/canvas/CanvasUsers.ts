@@ -30,6 +30,15 @@ export class CanvasUsers implements CanvasLayer {
     this.layer.draw();
   }
 
+  addUserAvatar(img: Konva.Image) {
+    this.layer.add(img);
+  }
+
+  removeUserAvatar(img: Konva.Image): void {
+    img.remove();
+    img.destroy();
+  }
+
   destroy() {
     this.stage.off("pointermove", this.handleStageMove);
     this.layer.destroy();

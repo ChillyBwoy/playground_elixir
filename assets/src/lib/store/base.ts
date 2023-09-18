@@ -1,10 +1,10 @@
-type Listener = () => void;
+type Listener<T> = (payload: T) => void;
 
 export class Store<T> {
   protected state: T;
   protected name: string;
 
-  private listeners: Array<Listener> = [];
+  private listeners: Array<Listener<T>> = [];
 
   constructor(name: string, initial: T) {
     this.name = name;
@@ -13,11 +13,11 @@ export class Store<T> {
 
   protected emit() {
     for (const listener of this.listeners) {
-      listener();
+      listener(this.state);
     }
   }
 
-  subscribe(listener: Listener) {
+  subscribe(listener: Listener<T>) {
     this.listeners.push(listener);
 
     return () => {

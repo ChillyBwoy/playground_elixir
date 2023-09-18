@@ -98,3 +98,10 @@ export interface Canvas {
   id: string;
   name: string;
 }
+
+export interface Presence {
+  user: User;
+  metas: Array<{
+    joined_at: string;
+  }>;
+}

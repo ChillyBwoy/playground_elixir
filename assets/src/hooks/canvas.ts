@@ -10,7 +10,9 @@ import {
   CanvasSettingsForm,
   CanvasUsers,
 } from "../lib/canvas";
-import type { Canvas, LiveViewHook, User } from "../types/app";
+import { PresenceStore } from "../lib/store/presence";
+import type { Canvas, LiveViewHook, Presence, User } from "../types/app";
+import { strToColor } from "../lib/color";
 
 interface CanvasJoinResponse {
   current_user: User;
@@ -28,10 +30,6 @@ interface UserDrawEndResponse {
   data: Konva.LineConfig;
 }
 
-interface State {
-  users: Record<string, User>;
-}
-
 interface Props {
   user: User;
   canvas: Canvas;
@@ -44,25 +42,10 @@ const EVENTS = {
   PRESENCE_STATE: "presence_state",
 } as const;
 
-function ref<T extends {}>(initialValue: T) {
-  let data = { ...initialValue };
-
-  let proxy = new Proxy(data, {
-    set(target, prop: string | symbol, value) {
-      target[prop as keyof T] = value;
-      return true;
-    },
-  });
-
-  return proxy;
-}
-
 export function canvasHook(socket: Socket) {
-  const state: State = ref({
-    users: {},
-  });
-
   let channel: Channel;
+  const presenceStore = new PresenceStore();
+  const avatars = new Map<string, Konva.Image>();
 
   function init(this: LiveViewHook, { user, canvas }: Props) {
     const form = new CanvasSettingsForm(`${canvas.id}_form`);
@@ -94,9 +77,48 @@ export function canvasHook(socket: Socket) {
     });
     const usersLayer = new CanvasUsers(renderer.stage, {
       onMove(x, y) {
-        // channel.push(EVENTS.USER_MOVE, { user_id: user.id, x, y });
+        channel.push(EVENTS.USER_MOVE, { user_id: user.id, x, y });
       },
     });
+
+    const handlePresenceChange = (presenceMap: Map<string, Presence>) => {
+      for (const key of avatars.keys()) {
+        if (!presenceMap.has(key)) {
+          const avatar = avatars.get(key);
+          if (avatar) {
+            usersLayer.removeUserAvatar(avatar);
+            avatars.delete(key);
+          }
+        }
+      }
+
+      for (const [key, presence] of presenceMap.entries()) {
+        if (presence.user.id === user.id) {
+          continue;
+        }
+
+        if (!avatars.has(key)) {
+          const img = new Image();
+          img.src = presence.user.avatar_url;
+
+          const image = new Konva.Image({
+            image: img,
+            x: 0,
+            y: 0,
+            width: 32,
+            height: 32,
+            cornerRadius: 15,
+            stroke: strToColor(presence.user.username),
+            strokeWidth: 6,
+          });
+
+          usersLayer.addUserAvatar(image);
+          avatars.set(key, image);
+        }
+      }
+    };
+
+    presenceStore.subscribe(handlePresenceChange);
 
     form.subscribe(renderer);
     form.subscribe(scaleLayer);
@@ -115,15 +137,21 @@ export function canvasHook(socket: Socket) {
       if (user_id === user.id) {
         return;
       }
+
+      const avatar = avatars.get(user_id);
+      if (!avatar) {
+        return;
+      }
+      avatar.x(x);
+      avatar.y(y);
     });
 
     channel.on(EVENTS.USER_DRAW_END, ({ data }: UserDrawEndResponse) => {
       drawLayer.drawLine(data);
     });
 
-    channel.on(EVENTS.PRESENCE_STATE, (presence) => {
-      console.log(":: handle presence_state ::", presence);
-      // state.users = presence;
+    channel.on(EVENTS.PRESENCE_STATE, (presence: Record<string, Presence>) => {
+      presenceStore.update(presence);
     });
   }
 
