@@ -47,8 +47,8 @@ defmodule PlaygroundWeb.CanvasChannel do
   end
 
   @impl true
-  def handle_in("user:draw", %{"user_id" => _user_id, "data" => _data}, socket) do
-    # TODO: add realtime drawing
+  def handle_in("user:draw", %{"user_id" => user_id, "data" => data}, socket) do
+    broadcast!(socket, "user:draw", %{user_id: user_id, data: data})
     {:noreply, socket}
   end
 

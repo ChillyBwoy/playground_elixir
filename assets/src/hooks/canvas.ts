@@ -146,8 +146,12 @@ export function canvasHook(socket: Socket) {
       avatar.y(y);
     });
 
-    channel.on(EVENTS.USER_DRAW_END, ({ data }: UserDrawEndResponse) => {
+    channel.on(EVENTS.USER_DRAW, ({ data }: UserDrawEndResponse) => {
       drawLayer.drawLine(data);
+    });
+
+    channel.on(EVENTS.USER_DRAW_END, ({ data }: UserDrawEndResponse) => {
+      // drawLayer.drawLine(data);
     });
 
     channel.on(EVENTS.PRESENCE_STATE, (presence: Record<string, Presence>) => {

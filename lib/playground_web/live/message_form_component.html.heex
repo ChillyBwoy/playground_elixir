@@ -1,13 +1,13 @@
 <div>
-    <.form
-        for={@form}
-        phx-target={@myself}
-        phx-change="message_form:validate"
-        phx-submit="message_form:create"
-        class="flex flex-col gap-4"
-    >
-        <.input field={@form[:content]} type="textarea" placeholder="Message" />
+  <.form
+    for={@form}
+    phx-target={@myself}
+    phx-change="message_form:validate"
+    phx-submit="message_form:create"
+    class="flex flex-col gap-4"
+  >
+    <.input field={@form[:content]} type="textarea" placeholder="Message" />
 
-        <.button type="submit" phx-disable-with="Saving..." class="w-full">Send</.button>
-    </.form>
+    <.button type="submit" phx-disable-with="Saving..." class="w-full">Send</.button>
+  </.form>
 </div>

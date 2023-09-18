@@ -102,13 +102,17 @@ defmodule Playground.Auth do
     User.changeset(user, attrs)
   end
 
-  def user_attrs_from_oauth(%{info: %{nickname: nickname, email: email, image: image}, provider: :github}) do
-    {:ok, %{
-      provider: "github",
-      username: nickname,
-      email: email,
-      avatar_url: image
-    }}
+  def user_attrs_from_oauth(%{
+        info: %{nickname: nickname, email: email, image: image},
+        provider: :github
+      }) do
+    {:ok,
+     %{
+       provider: "github",
+       username: nickname,
+       email: email,
+       avatar_url: image
+     }}
   end
 
   def user_attrs_params_from_oauth(_attrs) do
@@ -119,8 +123,9 @@ defmodule Playground.Auth do
     case Repo.get_by(User, email: attrs.email) do
       nil ->
         %User{}
-          |> User.changeset(attrs)
-          |> Repo.insert()
+        |> User.changeset(attrs)
+        |> Repo.insert()
+
       user ->
         {:ok, user}
     end
@@ -128,8 +133,7 @@ defmodule Playground.Auth do
 
   def get_user_by_token(token) do
     with {:ok, %{user_id: user_id}} <- Token.verify(token),
-         user <- Repo.get(User, user_id)
-    do
+         user <- Repo.get(User, user_id) do
       user
     else
       _ -> nil
@@ -138,7 +142,7 @@ defmodule Playground.Auth do
 
   def get_user_map_by_ids(id_list) do
     from(u in User, where: u.id in ^id_list, select: {u.id, u})
-      |> Repo.all()
-      |> Enum.into(%{})
+    |> Repo.all()
+    |> Enum.into(%{})
   end
 end

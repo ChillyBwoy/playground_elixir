@@ -14,12 +14,13 @@ alias Playground.Auth
 alias Playground.Chat
 alias Playground.Chat.Room
 
-{:ok, user} = Auth.create_user(%{
-  email: "chill.icp@gmail.com",
-  username: "ChillyBwoy",
-  avatar_url: "https://avatars.githubusercontent.com/u/72079?v=4",
-  provider: "github"
-})
+{:ok, user} =
+  Auth.create_user(%{
+    email: "chill.icp@gmail.com",
+    username: "ChillyBwoy",
+    avatar_url: "https://avatars.githubusercontent.com/u/72079?v=4",
+    provider: "github"
+  })
 
 rooms = [
   %Room{
