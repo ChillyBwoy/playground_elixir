@@ -8,37 +8,43 @@ defmodule PlaygroundWeb.RoomShowLive do
 
   alias PlaygroundWeb.Presence
 
-  @presence "presence:room"
-
   @impl true
   def mount(
         _params,
         %{"user_token" => user_token},
         %{assigns: %{current_user: %User{} = current_user}} = socket
       ) do
-    if connected?(socket) do
-      Presence.track_user(@presence, current_user.id)
-
-      Phoenix.PubSub.subscribe(Playground.PubSub, @presence)
-    end
-
     {:ok,
      socket
      |> assign(:current_user, current_user)
-     |> assign(:user_token, user_token)
-     |> assign(:users, %{})
-     |> handle_joins(Presence.list(@presence))}
+     |> assign(:user_token, user_token)}
   end
 
   @impl true
-  def handle_params(%{"id" => id}, _uri, socket) do
+  def handle_params(
+        %{"id" => id},
+        _uri,
+        %{assigns: %{current_user: %User{} = current_user}} = socket
+      ) do
+    topic = "presence:room:#{id}"
+
+    if connected?(socket) do
+      Presence.track_user(topic, current_user.id)
+
+      Phoenix.PubSub.subscribe(Playground.PubSub, topic)
+    end
+
     case Chat.get_room(id) |> Repo.preload([:owner, :canvases, messages: [:author]]) do
       %Room{} = room ->
-        {:noreply,
-         socket
-         |> assign(:room, room)
-         |> assign(:canvas, room.canvases |> Enum.at(0))
-         |> assign(:messages, room.messages)}
+        {
+          :noreply,
+          socket
+          |> assign(:room, room)
+          |> assign(:canvas, room.canvases |> Enum.at(0))
+          |> assign(:messages, room.messages)
+          |> assign(:topic, topic)
+          |> assign(:users, %{} |> map_joins(Presence.list(topic)))
+        }
 
       nil ->
         raise PlaygroundWeb.Errors.NotFoundError, "room not found"
@@ -55,13 +61,15 @@ defmodule PlaygroundWeb.RoomShowLive do
 
   @impl true
   def handle_info(
-        %Phoenix.Socket.Broadcast{event: "presence_diff", payload: diff},
-        socket
+        %Phoenix.Socket.Broadcast{
+          event: "presence_diff",
+          payload: %{joins: joins, leaves: leaves}
+        },
+        %{assigns: %{users: users}} = socket
       ) do
     {:noreply,
      socket
-     |> handle_leaves(diff.leaves)
-     |> handle_joins(diff.joins)}
+     |> assign(:users, users |> map_joins(joins) |> map_leaves(leaves))}
   end
 
   @impl true
@@ -70,15 +78,15 @@ defmodule PlaygroundWeb.RoomShowLive do
     {:noreply, socket}
   end
 
-  defp handle_joins(socket, joins) do
-    Enum.reduce(joins, socket, fn {user_id, data}, socket ->
-      assign(socket, :users, Map.put(socket.assigns.users, user_id, data))
+  defp map_joins(%{} = target, joins) do
+    Enum.reduce(joins, target, fn {user_id, data}, target ->
+      Map.put(target, user_id, data)
     end)
   end
 
-  defp handle_leaves(socket, leaves) do
-    Enum.reduce(leaves, socket, fn {user_id, _}, socket ->
-      assign(socket, :users, Map.delete(socket.assigns.users, user_id))
+  defp map_leaves(%{} = target, leaves) do
+    Enum.reduce(leaves, target, fn {user_id, _}, target ->
+      Map.delete(target, user_id)
     end)
   end
 end

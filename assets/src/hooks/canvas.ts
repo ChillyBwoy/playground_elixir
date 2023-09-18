@@ -28,6 +28,10 @@ interface UserDrawEndResponse {
   data: Konva.LineConfig;
 }
 
+interface State {
+  users: Record<string, User>;
+}
+
 interface Props {
   user: User;
   canvas: Canvas;
@@ -40,7 +44,24 @@ const EVENTS = {
   PRESENCE_STATE: "presence_state",
 } as const;
 
+function ref<T extends {}>(initialValue: T) {
+  let data = { ...initialValue };
+
+  let proxy = new Proxy(data, {
+    set(target, prop: string | symbol, value) {
+      target[prop as keyof T] = value;
+      return true;
+    },
+  });
+
+  return proxy;
+}
+
 export function canvasHook(socket: Socket) {
+  const state: State = ref({
+    users: {},
+  });
+
   let channel: Channel;
 
   function init(this: LiveViewHook, { user, canvas }: Props) {
@@ -73,7 +94,7 @@ export function canvasHook(socket: Socket) {
     });
     const usersLayer = new CanvasUsers(renderer.stage, {
       onMove(x, y) {
-        channel.push(EVENTS.USER_MOVE, { user_id: user.id, x, y });
+        // channel.push(EVENTS.USER_MOVE, { user_id: user.id, x, y });
       },
     });
 
@@ -90,8 +111,6 @@ export function canvasHook(socket: Socket) {
 
     renderer.render();
 
-    const avatars = new Map<string, User>();
-
     channel.on(EVENTS.USER_MOVE, ({ user_id, x, y }: UserMoveResponse) => {
       if (user_id === user.id) {
         return;
@@ -102,8 +121,9 @@ export function canvasHook(socket: Socket) {
       drawLayer.drawLine(data);
     });
 
-    channel.on(EVENTS.PRESENCE_STATE, (state) => {
-      console.log(":: handle presence_state ::", state);
+    channel.on(EVENTS.PRESENCE_STATE, (presence) => {
+      console.log(":: handle presence_state ::", presence);
+      // state.users = presence;
     });
   }
 
