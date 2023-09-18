@@ -54,7 +54,6 @@ defmodule PlaygroundWeb.CanvasChannel do
 
   @impl true
   def handle_in("user:draw_end", %{"user_id" => user_id, "data" => data}, socket) do
-    # TODO: add save drawing
     broadcast!(socket, "user:draw_end", %{user_id: user_id, data: data})
     {:noreply, socket}
   end
