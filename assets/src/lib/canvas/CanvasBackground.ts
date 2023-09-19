@@ -12,7 +12,9 @@ export class CanvasBackground implements CanvasLayer {
     private stage: Konva.Stage,
     private options: CanvasBackgroundOptions
   ) {
-    this.layer = new Konva.Layer();
+    this.layer = new Konva.Layer({
+      name: "background",
+    });
   }
 
   init(): void {

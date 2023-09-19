@@ -4,6 +4,7 @@ defmodule Playground.Chalkboard do
   """
 
   import Ecto.Query, warn: false
+  alias Playground.Chalkboard.Shape
   alias Playground.Repo
 
   alias Playground.Chalkboard.Canvas
@@ -102,5 +103,11 @@ defmodule Playground.Chalkboard do
   """
   def change_canvas(%Canvas{} = canvas, attrs \\ %{}) do
     Canvas.changeset(canvas, attrs)
+  end
+
+  def create_shape(attrs \\ %{}) do
+    %Shape{}
+    |> Shape.changeset(attrs)
+    |> Repo.insert()
   end
 end

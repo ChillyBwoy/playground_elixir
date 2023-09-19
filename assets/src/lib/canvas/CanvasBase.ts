@@ -7,9 +7,10 @@ export interface CanvasOptions {
 }
 
 export interface CanvasSettings {
-  mode: "draw" | "move";
+  mode: "draw" | "move" | "erase";
   showwGrid: boolean;
   color: string;
+  brushSize: number;
 }
 
 export interface CanvasLayer {
@@ -21,3 +22,10 @@ export interface CanvasLayer {
 export interface CanvasSettingsReceiver {
   settingsUpdated(settings: CanvasSettings): void;
 }
+
+export const canvasDefaultSettings: CanvasSettings = {
+  mode: "move",
+  showwGrid: true,
+  color: "#000000",
+  brushSize: 1,
+};

@@ -58,7 +58,7 @@ export class CanvasScale implements CanvasLayer, CanvasSettingsReceiver {
   }
 
   settingsUpdated = (settings: CanvasSettings) => {
-    this.isActive = settings.mode === "move";
+    // this.isActive = settings.mode === "move";
   };
 
   destroy() {

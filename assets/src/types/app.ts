@@ -1,3 +1,4 @@
+import Konva from "konva";
 import { LiveSocket } from "phoenix_live_view";
 
 export interface LiveViewHook {
@@ -94,9 +95,16 @@ export interface Room {
   name: string;
 }
 
+export interface Shape {
+  id: string;
+  shape_data: Konva.ShapeConfig;
+}
+
 export interface Canvas {
   id: string;
   name: string;
+  room_id: string;
+  shapes: Array<Shape>;
 }
 
 export interface Presence {

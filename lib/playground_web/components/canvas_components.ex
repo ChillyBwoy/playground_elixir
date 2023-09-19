@@ -30,4 +30,30 @@ defmodule PlaygroundWeb.CanvasComponents do
     </form>
     """
   end
+
+  slot :inner_block, required: true
+
+  def canvas_form_label(assigns) do
+    ~H"""
+    <label class="cursor-pointer flex flex-col justify-center">
+      <%= render_slot(@inner_block) %>
+    </label>
+    """
+  end
+
+  slot :inner_block, required: true
+
+  def canvas_form_section(assigns) do
+    ~H"""
+    <div class="flex gap-2">
+      <%= render_slot(@inner_block) %>
+    </div>
+    """
+  end
+
+  def canvas_form_delimiter(assigns) do
+    ~H"""
+    <div class="bg-gray-500 w-0.5" />
+    """
+  end
 end

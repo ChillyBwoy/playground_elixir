@@ -1,11 +1,12 @@
 defmodule PlaygroundWeb.CanvasChannel do
   use PlaygroundWeb, :channel
-
+  alias Playground.Repo
   alias Playground.Auth.User
   alias Playground.Chalkboard
-  alias Playground.Chalkboard.Canvas
-
+  alias Playground.Chalkboard.{Canvas, Shape}
   alias PlaygroundWeb.Presence
+  alias PlaygroundWeb.Tools.MapTransform
+  alias PlaygroundWeb.Tools.StringTransform
 
   @impl true
   def join(
@@ -13,10 +14,10 @@ defmodule PlaygroundWeb.CanvasChannel do
         _payload,
         %{assigns: %{current_user: %User{} = current_user}} = socket
       ) do
-    case Chalkboard.get_canvas(canvas_id) do
+    case Chalkboard.get_canvas(canvas_id) |> Repo.preload([:shapes]) do
       %Canvas{} = canvas ->
         send(self(), :after_join)
-        {:ok, %{current_user: current_user, canvas: canvas}, socket}
+        {:ok, %{current_user: current_user, canvas: canvas}, socket |> assign(:canvas, canvas)}
 
       nil ->
         {:error, %{reason: "invalid canvas id"}}
@@ -47,14 +48,29 @@ defmodule PlaygroundWeb.CanvasChannel do
   end
 
   @impl true
-  def handle_in("user:draw", %{"user_id" => _user_id, "data" => _data}, socket) do
-    # TODO: add realtime drawing
+  def handle_in("user:draw", %{"user_id" => user_id, "data" => data}, socket) do
+    broadcast!(socket, "user:draw", %{user_id: user_id, data: data})
     {:noreply, socket}
   end
 
   @impl true
-  def handle_in("user:draw_end", %{"user_id" => user_id, "data" => data}, socket) do
-    # TODO: add save drawing
+  def handle_in(
+        "user:draw_end",
+        %{"user_id" => user_id, "data" => data},
+        %{assigns: %{canvas: canvas}} = socket
+      ) do
+    updated_data =
+      data |> MapTransform.transform_keys(fn x -> StringTransform.snake_case_from(x) end)
+
+    form =
+      %Shape{}
+      |> Shape.changeset(%{user_id: user_id, canvas_id: canvas.id, shape_data: updated_data})
+      |> Map.put(:action, :validate)
+
+    if form.valid? do
+      form |> Map.put(:action, :insert) |> Repo.insert()
+    end
+
     broadcast!(socket, "user:draw_end", %{user_id: user_id, data: data})
     {:noreply, socket}
   end
