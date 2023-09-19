@@ -11,8 +11,8 @@ import {
   CanvasUsers,
 } from "../lib/canvas";
 import { PresenceStore } from "../lib/store/presence";
-import type { Canvas, LiveViewHook, Presence, User } from "../types/app";
 import { strToColor } from "../lib/color";
+import type { Canvas, LiveViewHook, Presence, User } from "../types/app";
 
 interface CanvasJoinResponse {
   current_user: User;
@@ -48,6 +48,8 @@ export function canvasHook(socket: Socket) {
   const avatars = new Map<string, Konva.Image>();
 
   function init(this: LiveViewHook, { user, canvas }: Props) {
+    console.log(canvas);
+
     const form = new CanvasSettingsForm(`${canvas.id}_form`);
 
     const renderer = new CanvasRenderer(`${canvas.id}_canvas`, {
@@ -154,7 +156,7 @@ export function canvasHook(socket: Socket) {
 
   return {
     destroyed() {
-      console.log("disconnected");
+      console.log(`disconecting canvas:${this.el.dataset.canvasId}`);
       channel.off(EVENTS.PRESENCE_STATE);
       channel.leave();
     },

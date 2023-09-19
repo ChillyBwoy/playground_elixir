@@ -14,7 +14,9 @@ export class CanvasGrid implements CanvasLayer, CanvasSettingsReceiver {
   private layer: Konva.Layer;
 
   constructor(private stage: Konva.Stage, private options: CanvasGridOptions) {
-    this.layer = new Konva.Layer();
+    this.layer = new Konva.Layer({
+      name: "grid",
+    });
   }
 
   private normalize(val: number) {

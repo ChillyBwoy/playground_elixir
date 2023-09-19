@@ -4,11 +4,12 @@ defmodule Playground.Chalkboard.Canvas do
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
-  @derive {Jason.Encoder, only: [:id, :name, :room_id]}
+  @derive {Jason.Encoder, only: [:id, :name, :room_id, :shapes]}
   schema "canvases" do
     field :name, :string
 
     belongs_to :room, Playground.Chat.Room
+    has_many :shapes, Playground.Chalkboard.Shape
 
     timestamps()
   end

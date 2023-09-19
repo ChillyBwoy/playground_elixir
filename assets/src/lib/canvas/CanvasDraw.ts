@@ -21,7 +21,9 @@ export class CanvasDraw implements CanvasLayer, CanvasSettingsReceiver {
   private settings: CanvasSettings = { ...canvasDefaultSettings };
 
   constructor(private stage: Konva.Stage, private options: CanvasDrawOptions) {
-    this.layer = new Konva.Layer();
+    this.layer = new Konva.Layer({
+      name: "draw",
+    });
   }
 
   init() {

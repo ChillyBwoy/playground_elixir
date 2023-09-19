@@ -10,7 +10,9 @@ export class CanvasUsers implements CanvasLayer {
   private layer: Konva.Layer;
 
   constructor(private stage: Konva.Stage, private options: CanvasUsersOptions) {
-    this.layer = new Konva.Layer();
+    this.layer = new Konva.Layer({
+      name: "users",
+    });
   }
 
   private handleStageMove = throttle(
