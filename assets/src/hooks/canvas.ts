@@ -13,6 +13,8 @@ import {
 import { PresenceStore } from "../lib/store/presence";
 import { strToColor } from "../lib/color";
 import type { Canvas, LiveViewHook, Presence, User } from "../types/app";
+import { transformKeys } from "../lib/object";
+import { toCamelCase } from "../lib/string";
 
 interface CanvasJoinResponse {
   current_user: User;
@@ -27,7 +29,7 @@ interface UserMoveResponse {
 
 interface UserDrawEndResponse {
   user_id: string;
-  data: Konva.LineConfig;
+  data: Konva.ShapeConfig;
 }
 
 interface Props {
@@ -132,6 +134,11 @@ export function canvasHook(socket: Socket) {
 
     renderer.render();
 
+    for (const shape of canvas.shapes) {
+      const shapeConfig = transformKeys(shape.shape_data, toCamelCase);
+      drawLayer.drawShape(shapeConfig);
+    }
+
     channel.on(EVENTS.USER_MOVE, ({ user_id, x, y }: UserMoveResponse) => {
       if (user_id === user.id) {
         return;
@@ -146,7 +153,8 @@ export function canvasHook(socket: Socket) {
     });
 
     channel.on(EVENTS.USER_DRAW_END, ({ data }: UserDrawEndResponse) => {
-      drawLayer.drawLine(data);
+      console.log(data);
+      drawLayer.drawShape(data);
     });
 
     channel.on(EVENTS.PRESENCE_STATE, (presence: Record<string, Presence>) => {

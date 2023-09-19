@@ -8,8 +8,8 @@ import {
 } from "./CanvasBase";
 
 interface CanvasDrawOptions {
-  onDraw?(data: Konva.LineConfig): void;
-  onDrawEnd?(data: Konva.LineConfig): void;
+  onDraw?(data: Konva.ShapeConfig): void;
+  onDrawEnd?(data: Konva.ShapeConfig): void;
 }
 
 export class CanvasDraw implements CanvasLayer, CanvasSettingsReceiver {
@@ -59,7 +59,7 @@ export class CanvasDraw implements CanvasLayer, CanvasSettingsReceiver {
     this.layer.add(this.lastLine);
   };
 
-  private handleData = throttle((data: Konva.LineConfig) => {
+  private handleData = throttle((data: Konva.ShapeConfig) => {
     this.options.onDraw && this.options.onDraw(data);
   }, 200);
 
@@ -80,8 +80,15 @@ export class CanvasDraw implements CanvasLayer, CanvasSettingsReceiver {
 
   private handleMouseUp = () => {
     if (this.isDrawing) {
-      this.options.onDrawEnd &&
-        this.options.onDrawEnd(this.lastLine?.toObject());
+      if (this.options.onDrawEnd) {
+        const payload = this.lastLine?.toObject();
+        payload.attrs = {
+          ...payload.attrs,
+          ...this.lastLine?.attrs,
+        };
+        this.options.onDrawEnd(payload);
+      }
+
       this.lastLine?.remove();
       this.lastLine?.destroy();
       this.lastLine = null;
@@ -94,7 +101,7 @@ export class CanvasDraw implements CanvasLayer, CanvasSettingsReceiver {
     this.settings = settings;
   };
 
-  drawLine(data: Konva.LineConfig): void {
+  drawShape(data: Konva.ShapeConfig): void {
     const line = new Konva.Line(data);
     this.layer.add(line);
   }

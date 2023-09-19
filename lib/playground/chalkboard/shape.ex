@@ -4,7 +4,7 @@ defmodule Playground.Chalkboard.Shape do
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
-  @derive {Jason.Encoder, only: [:id, :user_id, :canvas_id]}
+  @derive {Jason.Encoder, only: [:id, :shape_data]}
   schema "shapes" do
     embeds_one :shape_data, Playground.Chalkboard.ShapeData
 
