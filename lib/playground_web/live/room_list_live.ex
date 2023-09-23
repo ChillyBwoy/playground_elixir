@@ -4,21 +4,12 @@ defmodule PlaygroundWeb.RoomListLive do
   import PlaygroundWeb.RoomComponents
 
   alias Playground.Auth
-  alias Playground.Auth.User
   alias Playground.Chat
   alias Playground.Chat.Room
 
   @impl true
-  def mount(
-        _params,
-        %{"user_token" => user_token},
-        %{assigns: %{current_user: %User{} = user}} = socket
-      ) do
-    {:ok,
-     socket
-     |> assign(:user_token, user_token)
-     |> assign(:current_user, user)
-     |> assign(:rooms, fetch_room())}
+  def mount(_params, _session, socket) do
+    {:ok, socket |> assign(:rooms, fetch_rooms())}
   end
 
   @impl true
@@ -29,7 +20,7 @@ defmodule PlaygroundWeb.RoomListLive do
      |> redirect(to: ~p"/rooms/#{room.id}")}
   end
 
-  defp fetch_room() do
+  defp fetch_rooms() do
     rooms = Chat.list_rooms()
 
     list_of_ids =

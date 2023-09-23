@@ -4,12 +4,10 @@ defmodule PlaygroundWeb.CanvasComponent do
   alias Playground.Chalkboard.Canvas
 
   @impl true
-  def update(%{canvas: %Canvas{} = canvas} = assigns, socket) do
+  def update(%{canvas: %Canvas{} = canvas} = _assigns, socket) do
     {:ok,
-      socket
-        |> assign(:canvas, canvas)
-        |> assign(:hook_name, "CanvasHook")}
+     socket
+     |> assign(:canvas, canvas)
+     |> assign(:hook_name, "CanvasHook")}
   end
-
-
 end

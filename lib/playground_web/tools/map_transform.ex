@@ -1,5 +1,20 @@
 defmodule PlaygroundWeb.Tools.MapTransform do
-  def transform_keys(map, transformer) do
+  @doc """
+  Transforms all keys in a map using the provided transformer function.
+
+  ## Examples
+
+    iex> transform_keys(%{a: 1, b: 2}, &String.upcase/1)
+    %{"A" => 1, "B" => 2}
+
+  ## Arguments
+
+  * `map` - A map to transform the keys of.
+  * `transformer` - A function that takes a key and returns a new key.
+
+  Returns the transformed map.
+  """
+  def transform_keys(map, transformer) when is_map(map) and is_function(transformer, 1) do
     transform_keys_recur(map, transformer)
   end
 

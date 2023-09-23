@@ -24,34 +24,29 @@ defmodule PlaygroundWeb.UserAuth do
       conn
     else
       conn
-        |> put_flash(:error, "You must be logged in to access this page.")
-        |> maybe_store_return_to()
-        |> redirect(to: ~p"/")
-        |> halt()
+      |> put_flash(:error, "You must be logged in to access this page.")
+      |> maybe_store_return_to()
+      |> redirect(to: ~p"/")
+      |> halt()
     end
   end
 
-  def on_mount(:ensure_authenticated, _params, session, socket) do
-    socket = mount_current_user(socket, session)
+  def on_mount(:ensure_authenticated, _params, %{"user_token" => user_token}, socket) do
+    case Auth.get_user_by_token(user_token) do
+      %User{} = user ->
+        {:cont,
+         socket
+         #  assignuser to session
+         |> Phoenix.Component.assign(:current_user, user)
+         #  assign user_token to use it in channels
+         |> Phoenix.Component.assign(:user_token, user_token)}
 
-    if socket.assigns.current_user do
-      {:cont, socket}
-    else
-      socket =
-        socket
-        |> Phoenix.LiveView.put_flash(:error, "You must log in to access this page.")
-        |> Phoenix.LiveView.redirect(to: ~p"/")
-
-      {:halt, socket}
+      _ ->
+        {:halt,
+         socket
+         |> Phoenix.LiveView.put_flash(:error, "You must log in to access this page.")
+         |> Phoenix.LiveView.redirect(to: ~p"/")}
     end
-  end
-
-  defp mount_current_user(socket, session) do
-    Phoenix.Component.assign_new(socket, :current_user, fn ->
-      if user_token = session["user_token"] do
-        Auth.get_user_by_token(user_token)
-      end
-    end)
   end
 
   defp maybe_store_return_to(%{method: "GET"} = conn) do

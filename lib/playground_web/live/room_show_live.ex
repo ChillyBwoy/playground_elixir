@@ -9,15 +9,8 @@ defmodule PlaygroundWeb.RoomShowLive do
   alias PlaygroundWeb.Presence
 
   @impl true
-  def mount(
-        _params,
-        %{"user_token" => user_token},
-        %{assigns: %{current_user: %User{} = current_user}} = socket
-      ) do
-    {:ok,
-     socket
-     |> assign(:current_user, current_user)
-     |> assign(:user_token, user_token)}
+  def mount(_params, _session, socket) do
+    {:ok, socket}
   end
 
   @impl true
@@ -30,7 +23,6 @@ defmodule PlaygroundWeb.RoomShowLive do
 
     if connected?(socket) do
       Presence.track_user(topic, current_user.id)
-
       Phoenix.PubSub.subscribe(Playground.PubSub, topic)
     end
 
@@ -42,7 +34,6 @@ defmodule PlaygroundWeb.RoomShowLive do
           |> assign(:room, room)
           |> assign(:canvas, room.canvases |> Enum.at(0))
           |> assign(:messages, room.messages)
-          |> assign(:topic, topic)
           |> assign(:users, %{} |> map_joins(Presence.list(topic)))
         }
 
@@ -53,10 +44,11 @@ defmodule PlaygroundWeb.RoomShowLive do
 
   @impl true
   def handle_info({:message_created, %Message{} = message}, socket) do
+    new_message = message |> Repo.preload([:author])
+
     {:noreply,
      socket
-     |> assign(:messages, socket.assigns.messages |> Enum.concat([message]))
-     |> put_flash(:info, "Message created successfully")}
+     |> assign(:messages, socket.assigns.messages |> Enum.concat([new_message]))}
   end
 
   @impl true

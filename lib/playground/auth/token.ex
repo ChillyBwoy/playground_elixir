@@ -1,6 +1,6 @@
 defmodule Playground.Auth.Token do
-  @sign_salt "elixir_playground:auth:token"
-  @max_age 60 * 60 * 24 * 30
+  @sign_salt "UeuL(51vxR=V"
+  @max_age 60 * 60 * 24 * 3
 
   def sign(data) do
     Phoenix.Token.sign(PlaygroundWeb.Endpoint, @sign_salt, data)

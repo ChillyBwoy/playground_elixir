@@ -1,4 +1,13 @@
 defmodule PlaygroundWeb.Tools.StringTransform do
+  @doc """
+  Converts a string to snake_case.
+
+  Examples:
+
+      iex> snake_case_from("HelloWorld")
+      "hello_world"
+
+  """
   def snake_case_from(str) do
     snake_case_from_recur(str, "")
   end
@@ -17,6 +26,15 @@ defmodule PlaygroundWeb.Tools.StringTransform do
     snake_case_from_recur(rest, acc <> <<char>>)
   end
 
+  @doc """
+  Converts a string to camelCase.
+
+  Examples:
+
+      iex> camel_case_from("hello_world")
+      "helloWorld"
+
+  """
   def camel_case_from(str) do
     camel_case_from_recur(str, "")
   end
