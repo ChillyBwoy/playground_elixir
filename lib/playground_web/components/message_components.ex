@@ -15,7 +15,9 @@ defmodule PlaygroundWeb.MessageComponents do
           <.user_avatar user={message.author} />
         </div>
         <div>
-          <div class="whitespace-nowrap text-xs"><%= message.inserted_at %></div>
+          <div class="whitespace-nowrap text-xs">
+            <%= message.inserted_at  |> Calendar.strftime("%Y.%m.%d %H:%M") %>
+          </div>
           <p><%= message.content %></p>
         </div>
       </li>

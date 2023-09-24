@@ -86,7 +86,6 @@ defmodule PlaygroundWeb do
       # Core UI components and translation
       import PlaygroundWeb.CoreComponents
       import PlaygroundWeb.UserComponents
-      import PlaygroundWeb.RoomComponents
       import PlaygroundWeb.MessageComponents
       import PlaygroundWeb.CanvasComponents
       import PlaygroundWeb.Gettext
