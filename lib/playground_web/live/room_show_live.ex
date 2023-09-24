@@ -1,6 +1,7 @@
 defmodule PlaygroundWeb.RoomShowLive do
   use PlaygroundWeb, :live_view
 
+  alias Playground.PubSub
   alias Playground.Auth.User
   alias Playground.Chat
   alias Playground.Chat.{Room, Message}
@@ -10,6 +11,7 @@ defmodule PlaygroundWeb.RoomShowLive do
 
   @impl true
   def mount(_params, _session, socket) do
+    if connected?(socket), do: PubSub.subscribe()
     {:ok, socket}
   end
 
@@ -64,11 +66,26 @@ defmodule PlaygroundWeb.RoomShowLive do
      |> assign(:users, users |> map_joins(joins) |> map_leaves(leaves))}
   end
 
-  @impl true
-  def handle_info(_msg, socket) do
-    # Ignore other messages.
-    {:noreply, socket}
+  def handle_info({:room_deleted, room}, socket) do
+    {:noreply,
+     socket
+     |> put_flash(:info, "Room \"#{room.name}\" was deleted")
+     |> redirect(to: "/rooms")}
   end
+
+  def handle_info({:canvas_created, canvas}, %{assigns: %{room: %Room{} = room}} = socket) do
+    # Notify only users in the same room.
+    if canvas.room_id == room.id do
+      {:noreply,
+       socket
+       |> assign(:canvas, canvas)
+       |> put_flash(:info, "Canvas created successfully")}
+    else
+      {:noreply, socket}
+    end
+  end
+
+  def handle_info(_event, socket), do: {:noreply, socket}
 
   defp map_joins(%{} = target, joins) do
     Enum.reduce(joins, target, fn {user_id, data}, target ->

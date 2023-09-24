@@ -6,6 +6,7 @@ defmodule Playground.Chalkboard do
   import Ecto.Query, warn: false
   alias Playground.Chalkboard.Shape
   alias Playground.Repo
+  alias Playground.PubSub
 
   alias Playground.Chalkboard.Canvas
 
@@ -56,6 +57,7 @@ defmodule Playground.Chalkboard do
     %Canvas{}
     |> Canvas.changeset(attrs)
     |> Repo.insert()
+    |> PubSub.notify(:canvas_created)
   end
 
   @doc """
@@ -90,6 +92,7 @@ defmodule Playground.Chalkboard do
   """
   def delete_canvas(%Canvas{} = canvas) do
     Repo.delete(canvas)
+    PubSub.notify({:ok, canvas}, :canvas_deleted)
   end
 
   @doc """

@@ -1,33 +1,37 @@
 <main class="w-full">
   <div class="flex flex-col gap-6">
-    <.header class="px-8 text-center h-20">Room List [<%= @live_action %>]</.header>
+    <.header class="px-8 text-center h-20">Room List</.header>
     <div class="px-8 grid grid-cols-[1fr_30%] gap-6">
-      <ul class="flex flex-col gap-4">
-        <li :for={room <- @rooms} class="grid grid-cols-[auto_1fr_auto_auto] gap-2">
-          <div>
-            <.user_avatar user={room.owner} />
-          </div>
-          <div class="flex items-center">
-            <.link navigate={~p"/rooms/#{room.id}"}>
-              <%= room.name %>
-            </.link>
-          </div>
-          <div>
-            <%= if room.user_id == @current_user.id do %>
-              <.button
-                class="bg-red-500"
-                phx-click={JS.push("room_list:delete", value: %{id: room.id})}
-                data-confirm="R u sure?"
-              >
-                Delete
-              </.button>
-            <% end %>
-          </div>
-          <div class="flex items-center whitespace-nowrap text-right">
-            <%= room.inserted_at |> Calendar.strftime("%Y.%m.%d") %>
-          </div>
-        </li>
-      </ul>
+      <%= if length(@rooms) > 0 do %>
+        <ul class="flex flex-col gap-4">
+          <li :for={room <- @rooms} class="grid grid-cols-[auto_1fr_auto_auto] gap-2">
+            <div>
+              <.user_avatar user={room.owner} />
+            </div>
+            <div class="flex items-center">
+              <.link navigate={~p"/rooms/#{room.id}"}>
+                <%= room.name %>
+              </.link>
+            </div>
+            <div>
+              <%= if room.user_id == @current_user.id do %>
+                <.button
+                  class="bg-red-500"
+                  phx-click={JS.push("room_list:delete", value: %{id: room.id})}
+                  data-confirm="R u sure?"
+                >
+                  Delete
+                </.button>
+              <% end %>
+            </div>
+            <div class="flex items-center whitespace-nowrap text-right">
+              <%= room.inserted_at |> Calendar.strftime("%Y.%m.%d") %>
+            </div>
+          </li>
+        </ul>
+      <% else %>
+        <h3 class="font-bold text-2xl">There are no rooms</h3>
+      <% end %>
 
       <.live_component
         module={PlaygroundWeb.RoomFormComponent}

@@ -1,13 +1,15 @@
 defmodule PlaygroundWeb.RoomListLive do
   use PlaygroundWeb, :live_view
 
+  alias Playground.PubSub
   alias Playground.Auth.User
   alias Playground.Chat
-  alias Playground.Chat.Room
   alias Playground.Repo
 
   @impl true
   def mount(_params, _session, %{assigns: %{current_user: %User{} = current_user}} = socket) do
+    if connected?(socket), do: PubSub.subscribe()
+
     {:ok,
      socket
      |> assign(:current_user, current_user)
@@ -15,12 +17,28 @@ defmodule PlaygroundWeb.RoomListLive do
   end
 
   @impl true
-  def handle_info({:room_created, %Room{} = room}, socket) do
-    {:noreply,
-     socket
-     |> put_flash(:info, "Room created successfully")
-     |> redirect(to: ~p"/rooms/#{room.id}")}
+  def handle_info({PlaygroundWeb.RoomFormComponent, :room_created, room}, socket) do
+    {
+      :noreply,
+      socket
+      |> put_flash(:info, "Room created successfully")
+      |> redirect(to: ~p"/rooms/#{room.id}")
+    }
   end
+
+  def handle_info({:room_created, room}, socket) do
+    next_rooms = socket.assigns.rooms ++ [room |> Repo.preload([:owner])]
+
+    {:noreply, assign(socket, :rooms, next_rooms)}
+  end
+
+  def handle_info({:room_deleted, room}, socket) do
+    next_rooms = socket.assigns.rooms |> Enum.reject(fn r -> r.id == room.id end)
+
+    {:noreply, assign(socket, :rooms, next_rooms)}
+  end
+
+  def handle_info(_event, socket), do: {:noreply, socket}
 
   @impl true
   def handle_event(

@@ -22,8 +22,6 @@ defmodule PlaygroundWeb.Router do
 
     get "/", PageController, :home
     get "/info", PageController, :info
-
-    live "/light", LightLive
   end
 
   scope "/", PlaygroundWeb do

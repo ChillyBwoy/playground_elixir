@@ -40,7 +40,7 @@ defmodule PlaygroundWeb.RoomFormComponent do
       ) do
     case params |> Map.put("user_id", user_id) |> Chat.create_room() do
       {:ok, room} ->
-        send(self(), {:room_created, room})
+        send(self(), {PlaygroundWeb.RoomFormComponent, :room_created, room})
         {:noreply, socket}
 
       {:error, %Ecto.Changeset{} = changeset} ->

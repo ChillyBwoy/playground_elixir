@@ -44,7 +44,8 @@ defmodule PlaygroundWeb.CanvasFormComponent do
 
     case params |> Chalkboard.create_canvas() do
       {:ok, canvas} ->
-        {:noreply, assign(socket, :canvas, canvas)}
+        send(self(), {PlaygroundWeb.CanvasFormComponent, :canvas_created, canvas})
+        {:noreply, socket}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, :form, to_form(changeset, as: :canvas_form))}

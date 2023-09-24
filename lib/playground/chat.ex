@@ -6,6 +6,7 @@ defmodule Playground.Chat do
   import Ecto.Query, warn: false
   alias Expo.Message
   alias Playground.Repo
+  alias Playground.PubSub
 
   alias Playground.Chat.Room
   alias Playground.Chat.Message
@@ -57,6 +58,7 @@ defmodule Playground.Chat do
     %Room{}
     |> Room.changeset(attrs)
     |> Repo.insert()
+    |> PubSub.notify(:room_created)
   end
 
   @doc """
@@ -91,6 +93,7 @@ defmodule Playground.Chat do
   """
   def delete_room(%Room{} = room) do
     Repo.delete(room)
+    PubSub.notify({:ok, room}, :room_deleted)
   end
 
   @doc """
@@ -106,11 +109,11 @@ defmodule Playground.Chat do
     Room.changeset(room, attrs)
   end
 
-
   def create_message(attrs \\ %{}) do
     %Message{}
     |> Message.changeset(attrs)
     |> Repo.insert()
+    |> PubSub.notify(:message_created)
   end
 
   def change_message(%Message{} = message, attrs \\ %{}) do

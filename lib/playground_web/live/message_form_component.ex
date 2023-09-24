@@ -46,8 +46,7 @@ defmodule PlaygroundWeb.MessageFormComponent do
 
     case Chat.create_message(attrs) do
       {:ok, message} ->
-        send(self(), {:message_created, message})
-
+        send(self(), {PlaygroundWeb.MessageFormComponent, :message_created, message})
         {:noreply, socket |> assign(:form, new_form())}
 
       {:error, %Ecto.Changeset{} = changeset} ->

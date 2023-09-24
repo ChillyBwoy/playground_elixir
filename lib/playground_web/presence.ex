@@ -18,7 +18,7 @@ defmodule PlaygroundWeb.Presence do
   def handle_metas(topic, %{joins: joins, leaves: leaves}, presences, state) do
     for {user_id, presence} <- joins do
       user_data = %{user: presence.user, metas: Map.fetch!(presences, user_id)}
-      local_broadcast(topic, %{user_joined: user_data})
+      broadcast(topic, %{user_joined: user_data})
     end
 
     for {user_id, presence} <- leaves do
@@ -29,7 +29,7 @@ defmodule PlaygroundWeb.Presence do
         end
 
       user_data = %{user: presence.user, metas: metas}
-      local_broadcast(topic, %{user_left: user_data})
+      broadcast(topic, %{user_left: user_data})
     end
 
     {:ok, state}
@@ -51,8 +51,8 @@ defmodule PlaygroundWeb.Presence do
 
   def untrack_user(topic, user_id), do: untrack(self(), topic, user_id)
 
-  defp local_broadcast(topic, payload) do
-    Phoenix.PubSub.local_broadcast(
+  defp broadcast(topic, payload) do
+    Phoenix.PubSub.broadcast(
       Playground.PubSub,
       topic,
       {PlaygroundWeb.PresenceClient, payload}
