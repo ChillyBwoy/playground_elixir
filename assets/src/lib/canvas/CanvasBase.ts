@@ -7,7 +7,7 @@ export interface CanvasOptions {
 }
 
 export interface CanvasSettings {
-  mode: "draw" | "move" | "erase";
+  mode: "draw" | "move" | "erase" | "select";
   showwGrid: boolean;
   color: string;
   brushSize: number;

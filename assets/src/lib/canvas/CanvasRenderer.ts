@@ -40,7 +40,20 @@ export class CanvasRenderer implements CanvasSettingsReceiver {
 
   settingsUpdated = (settings: CanvasSettings) => {
     this.stage.draggable(settings.mode === "move");
-    this.stage.attrs.container.style.cursor =
-      settings.mode === "move" ? "move" : "crosshair";
+
+    switch (settings.mode) {
+      case "draw":
+        this.stage.attrs.container.style.cursor = "crosshair";
+        break;
+      case "erase":
+        this.stage.attrs.container.style.cursor = "cell";
+        break;
+      case "move":
+        this.stage.attrs.container.style.cursor = "move";
+        break;
+
+      default:
+        this.stage.attrs.container.style.cursor = "default";
+    }
   };
 }
