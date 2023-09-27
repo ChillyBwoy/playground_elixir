@@ -7,6 +7,7 @@ import {
   CanvasGrid,
   CanvasRenderer,
   CanvasScale,
+  CanvasSelectTransform,
   CanvasSettingsForm,
   CanvasUsers,
 } from "../lib/canvas";
@@ -72,6 +73,7 @@ export function canvasHook(socket: Socket) {
         channel.push(EVENTS.USER_DRAW_END, { user_id: user.id, data });
       },
     });
+    const selectLayer = new CanvasSelectTransform(renderer.stage);
     const gridLayer = new CanvasGrid(renderer.stage, {
       gridSize: renderer.options.gridSize,
       gridColor: renderer.options.gridColor,
@@ -124,11 +126,13 @@ export function canvasHook(socket: Socket) {
     form.subscribe(renderer);
     form.subscribe(scaleLayer);
     form.subscribe(drawLayer);
+    form.subscribe(selectLayer);
     form.subscribe(gridLayer);
 
     renderer.addLayer(scaleLayer);
     renderer.addLayer(backgroundLayer);
     renderer.addLayer(drawLayer);
+    renderer.addLayer(selectLayer);
     renderer.addLayer(gridLayer);
     renderer.addLayer(usersLayer);
 

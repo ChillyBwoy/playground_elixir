@@ -5,3 +5,4 @@ export { CanvasRenderer } from "./CanvasRenderer";
 export { CanvasScale } from "./CanvasScale";
 export { CanvasSettingsForm } from "./CanvasSettingsForm";
 export { CanvasUsers } from "./CanvasUsers";
+export { CanvasSelectTransform } from "./CanvasSelectTransform";

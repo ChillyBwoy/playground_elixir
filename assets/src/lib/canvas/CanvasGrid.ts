@@ -23,10 +23,6 @@ export class CanvasGrid implements CanvasLayer, CanvasSettingsReceiver {
     return val / this.stage.scaleX();
   }
 
-  init(): void {
-    this.stage.add(this.layer);
-  }
-
   draw() {
     const { gridSize, gridColor } = this.options;
     const width = this.stage.width();
@@ -96,6 +92,10 @@ export class CanvasGrid implements CanvasLayer, CanvasSettingsReceiver {
     }
 
     this.layer.batchDraw();
+  }
+
+  init(): void {
+    this.stage.add(this.layer);
   }
 
   destroy() {

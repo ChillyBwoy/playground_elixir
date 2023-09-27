@@ -42,11 +42,8 @@ export class CanvasRenderer implements CanvasSettingsReceiver {
     this.stage.draggable(settings.mode === "move");
 
     switch (settings.mode) {
-      case "draw":
+      case "select":
         this.stage.attrs.container.style.cursor = "crosshair";
-        break;
-      case "erase":
-        this.stage.attrs.container.style.cursor = "cell";
         break;
       case "move":
         this.stage.attrs.container.style.cursor = "move";
