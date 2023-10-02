@@ -3,7 +3,7 @@ defmodule Playground.Chalkboard.ShapeData do
   import Ecto.Changeset
   alias Playground.Chalkboard.ShapeData
 
-  # @primary_key false
+  @primary_key false
   @derive Jason.Encoder
   embedded_schema do
     embeds_one :attrs, Playground.Chalkboard.ShapeAttrs

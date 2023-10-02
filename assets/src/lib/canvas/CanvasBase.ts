@@ -8,14 +8,13 @@ export interface CanvasOptions {
 
 export interface CanvasSettings {
   mode: "draw" | "move" | "select";
-  showwGrid: boolean;
+  showGrid: boolean;
   color: string;
   brushSize: number;
 }
 
 export interface CanvasLayer {
-  init(): void;
-  draw?(): void;
+  draw(): void;
   destroy(): void;
 }
 
@@ -25,7 +24,9 @@ export interface CanvasSettingsReceiver {
 
 export const canvasDefaultSettings: CanvasSettings = {
   mode: "move",
-  showwGrid: true,
+  showGrid: true,
   color: "#000000",
   brushSize: 1,
 };
+
+export const shapeName = "playground_shape";

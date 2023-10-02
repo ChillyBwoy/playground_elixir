@@ -2,6 +2,7 @@ import throttle from "lodash.throttle";
 import Konva from "konva";
 import {
   canvasDefaultSettings,
+  shapeName,
   type CanvasLayer,
   type CanvasSettings,
   type CanvasSettingsReceiver,
@@ -20,8 +21,14 @@ export class CanvasDraw implements CanvasLayer, CanvasSettingsReceiver {
   private settings: CanvasSettings = { ...canvasDefaultSettings };
 
   constructor(private stage: Konva.Stage, private options: CanvasDrawOptions) {
-    this.layer = new Konva.Layer({
-      name: "draw",
+    this.layer = new Konva.Layer({ name: "draw" });
+
+    this.stage.add(this.layer);
+    this.stage.on("mousedown touchstart", this.handleMouseDown);
+    this.stage.on("mouseup touchend", this.handleMouseUp);
+    this.stage.on("mousemove touchmove", this.handleMouseMove);
+    this.layer.on("dragend", (event) => {
+      console.log(event.target);
     });
   }
 
@@ -86,22 +93,18 @@ export class CanvasDraw implements CanvasLayer, CanvasSettingsReceiver {
 
   settingsUpdated = (settings: CanvasSettings) => {
     this.settings = settings;
+
+    if (this.layer.children) {
+      const draggable = settings.mode === "select";
+      for (const child of this.layer.children) {
+        child.draggable(draggable);
+      }
+    }
   };
 
-  drawShape(data: Konva.ShapeConfig): void {
-    const line = new Konva.Line({
-      ...data,
-      name: "line",
-    });
+  drawLine(config: Konva.ShapeConfig): void {
+    const line = new Konva.Line({ ...config, name: shapeName });
     this.layer.add(line);
-  }
-
-  init() {
-    this.stage.add(this.layer);
-
-    this.stage.on("mousedown touchstart", this.handleMouseDown);
-    this.stage.on("mouseup touchend", this.handleMouseUp);
-    this.stage.on("mousemove touchmove", this.handleMouseMove);
   }
 
   draw(): void {}

@@ -97,6 +97,8 @@ export interface Room {
 
 export interface Shape {
   id: string;
+  canvas_id: string;
+  user_id: string;
   shape_data: Konva.ShapeConfig;
 }
 

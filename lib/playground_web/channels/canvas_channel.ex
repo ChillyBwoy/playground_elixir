@@ -68,10 +68,10 @@ defmodule PlaygroundWeb.CanvasChannel do
       |> Map.put(:action, :validate)
 
     if form.valid? do
-      form |> Map.put(:action, :insert) |> Repo.insert()
+      {:ok, shape} = form |> Map.put(:action, :insert) |> Repo.insert()
+      broadcast!(socket, "user:draw_end", shape)
     end
 
-    broadcast!(socket, "user:draw_end", %{user_id: user_id, data: data})
     {:noreply, socket}
   end
 

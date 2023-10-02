@@ -1,6 +1,7 @@
 import Konva from "konva";
 import {
   canvasDefaultSettings,
+  shapeName,
   type CanvasLayer,
   type CanvasSettings,
   type CanvasSettingsReceiver,
@@ -22,17 +23,33 @@ export class CanvasSelectTransform
   private selectionRectangle: Konva.Rect;
   private selectionArea: SelectionArea = { x1: 0, y1: 0, x2: 0, y2: 0 };
   private transformer: Konva.Transformer;
+  private selected: Array<Konva.Node> = [];
 
   constructor(private stage: Konva.Stage) {
     this.layer = new Konva.Layer({
       name: "select",
     });
 
-    this.transformer = new Konva.Transformer();
+    this.transformer = new Konva.Transformer({
+      borderDash: [5, 5],
+      resizeEnabled: false,
+      rotateEnabled: false,
+      borderStroke: "rgba(0, 0, 0, 0.5)",
+      borderStrokeWidth: 1,
+    });
+
     this.selectionRectangle = new Konva.Rect({
-      fill: "rgba(0,0,255,0.5)",
+      fill: "rgba(0, 0, 0, 0.1)",
       visible: false,
     });
+
+    this.layer.add(this.selectionRectangle);
+    this.layer.add(this.transformer);
+    this.stage.add(this.layer);
+
+    this.stage.on("mousedown touchstart", this.handleMouseDown);
+    this.stage.on("mouseup touchend", this.handleMouseUp);
+    this.stage.on("mousemove touchmove", this.handleMouseMove);
   }
 
   private handleMouseDown: Konva.KonvaEventListener<Konva.Stage, PointerEvent> =
@@ -59,6 +76,9 @@ export class CanvasSelectTransform
       if (this.settings.mode !== "select") {
         return;
       }
+      if (this.selected.length > 0) {
+        return;
+      }
       event.evt.preventDefault();
 
       const pos = this.stage.getRelativePointerPosition();
@@ -79,39 +99,38 @@ export class CanvasSelectTransform
     if (this.settings.mode !== "select") {
       return;
     }
-    event.evt.preventDefault();
-
     if (!this.selectionRectangle.visible()) {
       return;
     }
 
+    event.evt.preventDefault();
+
+    const pos = this.stage.getRelativePointerPosition();
+    this.selectionArea.x2 = pos.x;
+    this.selectionArea.y2 = pos.y;
+
+    this.selectionRectangle.setAttrs({
+      x: Math.min(this.selectionArea.x1, this.selectionArea.x2),
+      y: Math.min(this.selectionArea.y1, this.selectionArea.y2),
+      width: Math.abs(this.selectionArea.x2 - this.selectionArea.x1),
+      height: Math.abs(this.selectionArea.y2 - this.selectionArea.y1),
+    });
+
     this.selectionRectangle.visible(false);
-    const shapes = this.stage.find(".line");
-
     const box = this.selectionRectangle.getClientRect();
-    const selected = shapes.reduce<Array<Konva.Node>>((acc, shape) => {
-      const hasIntersection = Konva.Util.haveIntersection(
-        box,
-        shape.getClientRect()
-      );
-      if (hasIntersection) {
-        acc.push(shape);
-      }
-      return acc;
-    }, []);
+    const shapes = this.stage.find(`.${shapeName}`);
 
-    this.transformer.nodes(selected);
+    this.selected = shapes.filter((shape) =>
+      Konva.Util.haveIntersection(box, shape.getClientRect())
+    );
+
+    this.transformer.nodes(this.selected);
   };
 
-  init(): void {
-    this.layer.add(this.selectionRectangle);
-    this.layer.add(this.transformer);
-
-    this.stage.add(this.layer);
-
-    this.stage.on("mousedown touchstart", this.handleMouseDown);
-    this.stage.on("mouseup touchend", this.handleMouseUp);
-    this.stage.on("mousemove touchmove", this.handleMouseMove);
+  private reset() {
+    this.selected = [];
+    this.transformer.nodes([]);
+    this.selectionArea = { x1: 0, y1: 0, x2: 0, y2: 0 };
   }
 
   draw(): void {}
@@ -126,5 +145,6 @@ export class CanvasSelectTransform
 
   settingsUpdated = (settings: CanvasSettings) => {
     this.settings = settings;
+    this.reset();
   };
 }

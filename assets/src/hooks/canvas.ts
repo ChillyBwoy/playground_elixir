@@ -5,7 +5,7 @@ import {
   CanvasBackground,
   CanvasDraw,
   CanvasGrid,
-  CanvasRenderer,
+  CanvasStage,
   CanvasScale,
   CanvasSelectTransform,
   CanvasSettingsForm,
@@ -13,7 +13,8 @@ import {
 } from "../lib/canvas";
 import { PresenceStore } from "../lib/store/presence";
 import { strToColor } from "../lib/color";
-import type { Canvas, LiveViewHook, Presence, User } from "../types/app";
+import type { Canvas, LiveViewHook, Presence, User, Shape } from "../types/app";
+import type { CanvasLayer } from "../lib/canvas/CanvasBase";
 import { transformKeys } from "../lib/object";
 import { toCamelCase } from "../lib/string";
 
@@ -26,11 +27,6 @@ interface UserMoveResponse {
   user_id: string;
   x: number;
   y: number;
-}
-
-interface UserDrawEndResponse {
-  user_id: string;
-  data: Konva.ShapeConfig;
 }
 
 interface Props {
@@ -47,15 +43,17 @@ const EVENTS = {
 
 export function canvasHook(socket: Socket) {
   let channel: Channel;
+  let layers: Array<CanvasLayer> = [];
+
   const presenceStore = new PresenceStore();
-  const avatars = new Map<string, Konva.Image>();
+  const users = new Map<string, Konva.Image>();
 
   function init(this: LiveViewHook, { user, canvas }: Props) {
     console.log(canvas);
 
     const form = new CanvasSettingsForm(`${canvas.id}_form`);
 
-    const renderer = new CanvasRenderer(`${canvas.id}_canvas`, {
+    const stage = new CanvasStage(`${canvas.id}_canvas`, {
       gridSize: 50,
       gridColor: "rgba(0, 0, 0, 0.1)",
       bgColor: "#fff",
@@ -63,34 +61,60 @@ export function canvasHook(socket: Socket) {
       height: 3000,
     });
 
-    const scaleLayer = new CanvasScale(renderer.stage);
-    const backgroundLayer = new CanvasBackground(renderer.stage, {
-      bgColor: renderer.options.bgColor,
+    const scaleLayer = new CanvasScale(stage.stage);
+    const backgroundLayer = new CanvasBackground(stage.stage, {
+      bgColor: stage.options.bgColor,
     });
 
-    const drawLayer = new CanvasDraw(renderer.stage, {
+    const drawLayer = new CanvasDraw(stage.stage, {
       onDrawEnd(data) {
         channel.push(EVENTS.USER_DRAW_END, { user_id: user.id, data });
       },
     });
-    const selectLayer = new CanvasSelectTransform(renderer.stage);
-    const gridLayer = new CanvasGrid(renderer.stage, {
-      gridSize: renderer.options.gridSize,
-      gridColor: renderer.options.gridColor,
+    const selectLayer = new CanvasSelectTransform(stage.stage);
+    const gridLayer = new CanvasGrid(stage.stage, {
+      gridSize: stage.options.gridSize,
+      gridColor: stage.options.gridColor,
     });
-    const usersLayer = new CanvasUsers(renderer.stage, {
+    const usersLayer = new CanvasUsers(stage.stage, {
       onMove(x, y) {
-        channel.push(EVENTS.USER_MOVE, { user_id: user.id, x, y });
+        if (users.size > 0) {
+          channel.push(EVENTS.USER_MOVE, { user_id: user.id, x, y });
+        }
       },
     });
 
+    layers.push(
+      scaleLayer,
+      backgroundLayer,
+      drawLayer,
+      selectLayer,
+      gridLayer,
+      usersLayer
+    );
+
+    form.subscribe(stage);
+    form.subscribe(scaleLayer);
+    form.subscribe(drawLayer);
+    form.subscribe(selectLayer);
+    form.subscribe(gridLayer);
+
+    for (const layer of layers) {
+      layer.draw();
+    }
+
+    for (const shape of canvas.shapes) {
+      const shapeConfig = transformKeys(shape.shape_data, toCamelCase);
+      drawLayer.drawLine(shapeConfig);
+    }
+
     const handlePresenceChange = (presenceMap: Map<string, Presence>) => {
-      for (const key of avatars.keys()) {
+      for (const key of users.keys()) {
         if (!presenceMap.has(key)) {
-          const avatar = avatars.get(key);
+          const avatar = users.get(key);
           if (avatar) {
             usersLayer.removeUserAvatar(avatar);
-            avatars.delete(key);
+            users.delete(key);
           }
         }
       }
@@ -100,7 +124,7 @@ export function canvasHook(socket: Socket) {
           continue;
         }
 
-        if (!avatars.has(key)) {
+        if (!users.has(key)) {
           const img = new Image();
           img.src = presence.user.avatar_url;
 
@@ -116,39 +140,19 @@ export function canvasHook(socket: Socket) {
           });
 
           usersLayer.addUserAvatar(image);
-          avatars.set(key, image);
+          users.set(key, image);
         }
       }
     };
 
     presenceStore.subscribe(handlePresenceChange);
 
-    form.subscribe(renderer);
-    form.subscribe(scaleLayer);
-    form.subscribe(drawLayer);
-    form.subscribe(selectLayer);
-    form.subscribe(gridLayer);
-
-    renderer.addLayer(scaleLayer);
-    renderer.addLayer(backgroundLayer);
-    renderer.addLayer(drawLayer);
-    renderer.addLayer(selectLayer);
-    renderer.addLayer(gridLayer);
-    renderer.addLayer(usersLayer);
-
-    renderer.render();
-
-    for (const shape of canvas.shapes) {
-      const shapeConfig = transformKeys(shape.shape_data, toCamelCase);
-      drawLayer.drawShape(shapeConfig);
-    }
-
     channel.on(EVENTS.USER_MOVE, ({ user_id, x, y }: UserMoveResponse) => {
       if (user_id === user.id) {
         return;
       }
 
-      const avatar = avatars.get(user_id);
+      const avatar = users.get(user_id);
       if (!avatar) {
         return;
       }
@@ -156,9 +160,12 @@ export function canvasHook(socket: Socket) {
       avatar.y(y);
     });
 
-    channel.on(EVENTS.USER_DRAW_END, ({ data }: UserDrawEndResponse) => {
-      console.log(data);
-      drawLayer.drawShape(data);
+    channel.on(EVENTS.USER_DRAW_END, (shape: Shape) => {
+      const shapeConfig = transformKeys(shape.shape_data, toCamelCase);
+      drawLayer.drawLine({
+        ...shapeConfig,
+        id: shape.id,
+      });
     });
 
     channel.on(EVENTS.PRESENCE_STATE, (presence: Record<string, Presence>) => {
@@ -169,10 +176,16 @@ export function canvasHook(socket: Socket) {
   return {
     destroyed() {
       console.log(`disconecting canvas:${this.el.dataset.canvasId}`);
+
+      for (const layer of layers) {
+        layer.destroy();
+      }
+
       channel.off(EVENTS.PRESENCE_STATE);
       channel.leave();
     },
     mounted() {
+      layers = [];
       channel = socket.channel(`canvas:${this.el.dataset.canvasId}`, {});
 
       channel

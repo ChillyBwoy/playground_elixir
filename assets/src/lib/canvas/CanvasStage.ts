@@ -1,17 +1,14 @@
 import Konva from "konva";
 import type {
-  CanvasLayer,
   CanvasOptions,
   CanvasSettings,
   CanvasSettingsReceiver,
 } from "./CanvasBase";
 
-export class CanvasRenderer implements CanvasSettingsReceiver {
+export class CanvasStage implements CanvasSettingsReceiver {
   public options: CanvasOptions;
 
   public stage: Konva.Stage;
-
-  private layers: Array<CanvasLayer> = [];
 
   constructor(id: string, options: CanvasOptions) {
     this.options = options;
@@ -21,21 +18,6 @@ export class CanvasRenderer implements CanvasSettingsReceiver {
       height: options.height,
       draggable: true,
     });
-
-    for (const layer of this.layers) {
-      layer.init();
-    }
-  }
-
-  addLayer(layer: CanvasLayer) {
-    this.layers.push(layer);
-    layer.init();
-  }
-
-  render() {
-    for (const layer of this.layers) {
-      layer.draw && layer.draw();
-    }
   }
 
   settingsUpdated = (settings: CanvasSettings) => {
@@ -45,6 +27,7 @@ export class CanvasRenderer implements CanvasSettingsReceiver {
       case "select":
         this.stage.attrs.container.style.cursor = "crosshair";
         break;
+
       case "move":
         this.stage.attrs.container.style.cursor = "move";
         break;

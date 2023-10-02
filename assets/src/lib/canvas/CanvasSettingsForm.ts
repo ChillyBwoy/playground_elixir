@@ -22,7 +22,7 @@ export class CanvasSettingsForm {
         if (prop === "mode") {
           target[prop] = value;
         }
-        if (prop === "showwGrid") {
+        if (prop === "showGrid") {
           target[prop] = Boolean(value);
         }
         if (prop === "color") {
@@ -42,7 +42,7 @@ export class CanvasSettingsForm {
   private handleFormChange = (evt: Event) => {
     const formData = new FormData(evt.currentTarget as HTMLFormElement);
     this.data.mode = formData.get("mode") as CanvasSettings["mode"];
-    this.data.showwGrid = formData.get("show_grid") === "on";
+    this.data.showGrid = formData.get("show_grid") === "on";
     this.data.color = formData.get("color") as CanvasSettings["color"];
     this.data.brushSize = Number(formData.get("brush_size"));
 
