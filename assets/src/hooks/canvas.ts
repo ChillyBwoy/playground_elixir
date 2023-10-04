@@ -48,8 +48,9 @@ export function canvasHook(socket: Socket) {
   const presenceStore = new PresenceStore();
   const users = new Map<string, Konva.Image>();
 
-  function init(this: LiveViewHook, { user, canvas }: Props) {
-    console.log(canvas);
+  function init(this: LiveViewHook, props: Props) {
+    console.log("init", props);
+    const { user, canvas } = props;
 
     const form = new CanvasSettingsForm(`${canvas.id}_form`);
 
@@ -105,7 +106,7 @@ export function canvasHook(socket: Socket) {
 
     for (const shape of canvas.shapes) {
       const shapeConfig = transformKeys(shape.shape_data, toCamelCase);
-      drawLayer.drawLine(shapeConfig);
+      drawLayer.drawLine(shape.id, shapeConfig);
     }
 
     const handlePresenceChange = (presenceMap: Map<string, Presence>) => {
@@ -162,10 +163,7 @@ export function canvasHook(socket: Socket) {
 
     channel.on(EVENTS.USER_DRAW_END, (shape: Shape) => {
       const shapeConfig = transformKeys(shape.shape_data, toCamelCase);
-      drawLayer.drawLine({
-        ...shapeConfig,
-        id: shape.id,
-      });
+      drawLayer.drawLine(shape.id, shapeConfig);
     });
 
     channel.on(EVENTS.PRESENCE_STATE, (presence: Record<string, Presence>) => {

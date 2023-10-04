@@ -28,6 +28,7 @@ export class CanvasDraw implements CanvasLayer, CanvasSettingsReceiver {
     this.stage.on("mouseup touchend", this.handleMouseUp);
     this.stage.on("mousemove touchmove", this.handleMouseMove);
     this.layer.on("dragend", (event) => {
+      // TODO: send event to server
       console.log(event.target);
     });
   }
@@ -102,8 +103,12 @@ export class CanvasDraw implements CanvasLayer, CanvasSettingsReceiver {
     }
   };
 
-  drawLine(config: Konva.ShapeConfig): void {
-    const line = new Konva.Line({ ...config, name: shapeName });
+  drawLine(id: string, config: Konva.ShapeConfig): void {
+    const line = new Konva.Line({
+      ...config,
+      name: shapeName,
+      id,
+    });
     this.layer.add(line);
   }
 
