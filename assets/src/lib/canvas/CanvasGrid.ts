@@ -14,17 +14,12 @@ export class CanvasGrid implements CanvasLayer, CanvasSettingsReceiver {
   private layer: Konva.Layer;
 
   constructor(private stage: Konva.Stage, private options: CanvasGridOptions) {
-    this.layer = new Konva.Layer({
-      name: "grid",
-    });
+    this.layer = new Konva.Layer({ name: "grid" });
+    this.stage.add(this.layer);
   }
 
   private normalize(val: number) {
     return val / this.stage.scaleX();
-  }
-
-  init(): void {
-    this.stage.add(this.layer);
   }
 
   draw() {
@@ -103,7 +98,7 @@ export class CanvasGrid implements CanvasLayer, CanvasSettingsReceiver {
   }
 
   settingsUpdated = (settings: CanvasSettings) => {
-    if (settings.showwGrid) {
+    if (settings.showGrid) {
       this.layer.show();
     } else {
       this.layer.hide();

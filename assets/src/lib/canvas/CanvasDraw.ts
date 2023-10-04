@@ -2,6 +2,7 @@ import throttle from "lodash.throttle";
 import Konva from "konva";
 import {
   canvasDefaultSettings,
+  shapeName,
   type CanvasLayer,
   type CanvasSettings,
   type CanvasSettingsReceiver,
@@ -14,28 +15,26 @@ interface CanvasDrawOptions {
 
 export class CanvasDraw implements CanvasLayer, CanvasSettingsReceiver {
   private isDrawing = false;
-  private allowDraw = false;
   private lastLine: Konva.Line | null = null;
 
   private layer: Konva.Layer;
   private settings: CanvasSettings = { ...canvasDefaultSettings };
 
   constructor(private stage: Konva.Stage, private options: CanvasDrawOptions) {
-    this.layer = new Konva.Layer({
-      name: "draw",
-    });
-  }
+    this.layer = new Konva.Layer({ name: "draw" });
 
-  init() {
     this.stage.add(this.layer);
-
     this.stage.on("mousedown touchstart", this.handleMouseDown);
     this.stage.on("mouseup touchend", this.handleMouseUp);
     this.stage.on("mousemove touchmove", this.handleMouseMove);
+    this.layer.on("dragend", (event) => {
+      // TODO: send event to server
+      console.log(event.target);
+    });
   }
 
   private handleMouseDown = () => {
-    if (!this.allowDraw) {
+    if (this.settings.mode !== "draw") {
       this.isDrawing = false;
       return;
     }
@@ -44,13 +43,10 @@ export class CanvasDraw implements CanvasLayer, CanvasSettingsReceiver {
 
     const pos = this.stage.getRelativePointerPosition();
 
-    const mode =
-      this.settings.mode === "draw" ? "source-over" : "destination-out";
-
     this.lastLine = new Konva.Line({
       stroke: this.settings.color,
       strokeWidth: this.settings.brushSize,
-      globalCompositeOperation: mode,
+      globalCompositeOperation: "source-over",
       lineCap: "round",
       lineJoin: "round",
       points: [pos.x, pos.y, pos.x, pos.y],
@@ -64,7 +60,7 @@ export class CanvasDraw implements CanvasLayer, CanvasSettingsReceiver {
   }, 200);
 
   private handleMouseMove = (event: Konva.KonvaEventObject<PointerEvent>) => {
-    if (!this.isDrawing || !this.allowDraw || !this.lastLine) {
+    if (!this.isDrawing || this.settings.mode !== "draw" || !this.lastLine) {
       return;
     }
 
@@ -97,12 +93,22 @@ export class CanvasDraw implements CanvasLayer, CanvasSettingsReceiver {
   };
 
   settingsUpdated = (settings: CanvasSettings) => {
-    this.allowDraw = settings.mode !== "move";
     this.settings = settings;
+
+    if (this.layer.children) {
+      const draggable = settings.mode === "select";
+      for (const child of this.layer.children) {
+        child.draggable(draggable);
+      }
+    }
   };
 
-  drawShape(data: Konva.ShapeConfig): void {
-    const line = new Konva.Line(data);
+  drawLine(id: string, config: Konva.ShapeConfig): void {
+    const line = new Konva.Line({
+      ...config,
+      name: shapeName,
+      id,
+    });
     this.layer.add(line);
   }
 

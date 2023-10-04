@@ -10,9 +10,10 @@ export class CanvasUsers implements CanvasLayer {
   private layer: Konva.Layer;
 
   constructor(private stage: Konva.Stage, private options: CanvasUsersOptions) {
-    this.layer = new Konva.Layer({
-      name: "users",
-    });
+    this.layer = new Konva.Layer({ name: "users" });
+
+    this.stage.add(this.layer);
+    this.stage.on("pointermove", this.handleStageMove);
   }
 
   private handleStageMove = throttle(
@@ -20,13 +21,8 @@ export class CanvasUsers implements CanvasLayer {
       var pos = this.stage.getRelativePointerPosition();
       this.options.onMove(pos.x, pos.y);
     },
-    200
+    100
   );
-
-  init(): void {
-    this.stage.on("pointermove", this.handleStageMove);
-    this.stage.add(this.layer);
-  }
 
   draw(): void {
     this.layer.draw();

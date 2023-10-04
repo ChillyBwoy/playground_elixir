@@ -12,7 +12,10 @@ export class CanvasScale implements CanvasLayer, CanvasSettingsReceiver {
   private scale = 1;
   private isActive = true;
 
-  constructor(private stage: Konva.Stage) {}
+  constructor(private stage: Konva.Stage) {
+    this.stage.scale({ x: this.scale, y: this.scale });
+    this.stage.on("wheel", this.handleScale);
+  }
 
   private handleScale = (event: Konva.KonvaEventObject<WheelEvent>) => {
     event.evt.preventDefault();
@@ -52,14 +55,9 @@ export class CanvasScale implements CanvasLayer, CanvasSettingsReceiver {
     this.stage.draw();
   };
 
-  init() {
-    this.stage.scale({ x: this.scale, y: this.scale });
-    this.stage.on("wheel", this.handleScale);
-  }
+  settingsUpdated = (_settings: CanvasSettings) => {};
 
-  settingsUpdated = (settings: CanvasSettings) => {
-    // this.isActive = settings.mode === "move";
-  };
+  draw(): void {}
 
   destroy() {
     this.stage.off("wheel", this.handleScale);
