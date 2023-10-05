@@ -2,7 +2,7 @@
 <html lang="en" class="[scrollbar-gutter:stable]">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <meta name="csrf-token" content={get_csrf_token()} />
     <meta name="user-token" content={@conn.assigns[:user_token]} />
     <.live_title suffix=" · Phoenix Framework">
@@ -32,10 +32,14 @@
         <ul class="flex gap-8">
           <li class="flex items-center gap-2">
             <%= if @conn.assigns[:current_user] do %>
-              <.link navigate={~p"/auth/signout"} class="text-white font-mono text-xl">Signout</.link>
+              <.link navigate={~p"/auth/signout"} class="text-white font-mono text-xl">
+                Signout
+              </.link>
               <.user_avatar user={@conn.assigns[:current_user]} size="xl" />
             <% else %>
-              <.link navigate={~p"/auth/signin/github"} class="text-white font-mono text-xl">Signin</.link>
+              <.link navigate={~p"/auth/signin/github"} class="text-white font-mono text-xl">
+                Signin
+              </.link>
             <% end %>
           </li>
         </ul>

@@ -18,6 +18,8 @@ import type { CanvasLayer } from "../lib/canvas/CanvasBase";
 import { transformKeys } from "../lib/object";
 import { toCamelCase } from "../lib/string";
 
+Konva.pixelRatio = 1;
+
 interface CanvasJoinResponse {
   current_user: User;
   canvas: Canvas;
@@ -55,11 +57,11 @@ export function canvasHook(socket: Socket) {
     const form = new CanvasSettingsForm(`${canvas.id}_form`);
 
     const stage = new CanvasStage(`${canvas.id}_canvas`, {
-      gridSize: 50,
-      gridColor: "rgba(0, 0, 0, 0.1)",
+      gridSize: 100,
+      gridColor: "rgba(0, 0, 0, 0.25)",
       bgColor: "#fff",
-      width: 3000,
-      height: 3000,
+      width: 5000,
+      height: 5000,
     });
 
     const scaleLayer = new CanvasScale(stage.stage);
@@ -76,6 +78,8 @@ export function canvasHook(socket: Socket) {
     const gridLayer = new CanvasGrid(stage.stage, {
       gridSize: stage.options.gridSize,
       gridColor: stage.options.gridColor,
+      width: stage.options.width,
+      height: stage.options.height,
     });
     const usersLayer = new CanvasUsers(stage.stage, {
       onMove(x, y) {

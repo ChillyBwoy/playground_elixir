@@ -17,6 +17,8 @@ export class CanvasStage implements CanvasSettingsReceiver {
       width: options.width,
       height: options.height,
       draggable: true,
+      x: -options.width / 2,
+      y: -options.height / 2,
     });
   }
 

@@ -4,10 +4,9 @@
     phx-target={@myself}
     phx-change="message_form:validate"
     phx-submit="message_form:create"
-    class="flex flex-col gap-4"
+    class="grid grid-cols-[1fr_auto] gap-2"
   >
-    <.input field={@form[:content]} type="textarea" placeholder="Message" />
-
-    <.button type="submit" phx-disable-with="Saving..." class="w-full">Send</.button>
+    <.input field={@form[:content]} type="text" placeholder="Message" />
+    <.button type="submit" phx-disable-with="Saving...">Send</.button>
   </.form>
 </div>

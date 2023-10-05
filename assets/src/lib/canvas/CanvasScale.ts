@@ -8,7 +8,7 @@ import type {
 } from "./CanvasBase";
 
 export class CanvasScale implements CanvasLayer, CanvasSettingsReceiver {
-  private scaleRange = range(0.5, 5, 0.25);
+  private scaleRange = range(0.25, 4, 0.05);
   private scale = 1;
   private isActive = true;
 
