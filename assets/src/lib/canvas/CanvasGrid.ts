@@ -8,58 +8,45 @@ import type {
 interface CanvasGridOptions {
   gridSize: number;
   gridColor: string;
+  width: number;
+  height: number;
 }
 
 export class CanvasGrid implements CanvasLayer, CanvasSettingsReceiver {
   private layer: Konva.Layer;
 
   constructor(private stage: Konva.Stage, private options: CanvasGridOptions) {
-    this.layer = new Konva.Layer({ name: "grid" });
+    this.layer = new Konva.Layer({ name: "grid", listening: false });
     this.stage.add(this.layer);
   }
 
-  private normalize(val: number) {
-    return val / this.stage.scaleX();
+  private createLine(x: number, y: number, points: number[]) {
+    const { gridColor } = this.options;
+
+    return new Konva.Line({
+      x,
+      y,
+      points: points,
+      stroke: gridColor,
+      strokeWidth: 1,
+      listening: false,
+      shadowForStrokeEnabled: false,
+      hitStrokeWidth: 0,
+    });
   }
 
   draw() {
-    const { gridSize, gridColor } = this.options;
-    const width = this.stage.width();
-    const height = this.stage.height();
-    const position = this.stage.position();
+    const { gridSize, height, width } = this.options;
 
     this.layer.clear();
     this.layer.destroyChildren();
     this.layer.clipWidth(0);
 
-    const stageRect = {
+    const fullRect = {
       x1: 0,
       y1: 0,
-      x2: width,
-      y2: height,
-      offset: {
-        x: this.normalize(position.x),
-        y: this.normalize(position.y),
-      },
-    };
-
-    const gridOffset = {
-      x: Math.ceil(this.normalize(position.x) / gridSize) * gridSize,
-      y: Math.ceil(this.normalize(position.y) / gridSize) * gridSize,
-    };
-
-    const gridRect = {
-      x1: -gridOffset.x,
-      y1: -gridOffset.y,
-      x2: this.normalize(width) - gridOffset.x + gridSize,
-      y2: this.normalize(height) - gridOffset.y + gridSize,
-    };
-
-    const fullRect = {
-      x1: Math.min(stageRect.x1, gridRect.x1),
-      y1: Math.min(stageRect.y1, gridRect.y1),
-      x2: Math.max(stageRect.x2, gridRect.x2),
-      y2: Math.max(stageRect.y2, gridRect.y2),
+      x2: Math.max(width, width + gridSize),
+      y2: Math.max(height, height + gridSize),
     };
 
     const xSize = fullRect.x2 - fullRect.x1 - gridSize;
@@ -69,24 +56,22 @@ export class CanvasGrid implements CanvasLayer, CanvasSettingsReceiver {
     const ySteps = Math.floor(ySize / gridSize);
 
     for (let i = 0; i <= xSteps; i++) {
-      const line = new Konva.Line({
-        x: fullRect.x1 + i * gridSize,
-        y: fullRect.y1,
-        points: [0, 0, 0, ySize],
-        stroke: gridColor,
-        strokeWidth: 1,
-      });
+      const points = [0, 0, 0, ySize];
+      const line = this.createLine(
+        fullRect.x1 + i * gridSize,
+        fullRect.y1,
+        points
+      );
       this.layer.add(line);
     }
 
     for (let i = 0; i <= ySteps; i++) {
-      const line = new Konva.Line({
-        x: fullRect.x1,
-        y: fullRect.y1 + i * gridSize,
-        points: [0, 0, xSize, 0],
-        stroke: gridColor,
-        strokeWidth: 1,
-      });
+      const points = [0, 0, xSize, 0];
+      const line = this.createLine(
+        fullRect.x1,
+        fullRect.y1 + i * gridSize,
+        points
+      );
       this.layer.add(line);
     }
 

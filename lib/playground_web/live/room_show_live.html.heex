@@ -1,28 +1,20 @@
 <main class="w-full">
   <div class="flex flex-col">
     <.header class="text-center h-20">
-      <%= @room.name %>
+      <%= @room.name %><.user_avatar user={@room.owner} size="s" />
+
       <:subtitle>
-        by <.user_avatar user={@room.owner} />
+        <ul class="flex flex-row gap-1 items-center justify-center">
+          <%= for {_, %{user: user}} <- @users do %>
+            <li>
+              <.user_avatar user={user} />
+            </li>
+          <% end %>
+        </ul>
       </:subtitle>
     </.header>
 
-    <section class="grid grid-cols-[12rem_1fr_20rem] gap-2 h-[calc(100vh-10rem)]">
-      <div class="px-2 grid grid-rows-[1fr_auto] bg-neutral-100">
-        <div class="overflow-scroll p-2">
-          <ul class="flex flex-col gap-4">
-            <%= for {_, %{user: user}} <- @users do %>
-              <li class="grid gap-2 grid-cols-[auto_1fr]">
-                <.user_avatar user={user} />
-                <%= user.username %>
-              </li>
-            <% end %>
-          </ul>
-        </div>
-
-        <div class="p2"></div>
-      </div>
-
+    <section class="grid grid-cols-[1fr_20rem] gap-2 h-[calc(100vh-10rem)]">
       <%= if @canvas do %>
         <.live_component module={PlaygroundWeb.CanvasComponent} id="canvas" canvas={@canvas} />
       <% else %>
@@ -33,14 +25,15 @@
         />
       <% end %>
 
-      <div class="px-2 grid grid-rows-[1fr_auto] bg-neutral-100">
-        <div class="overflow-scroll bg-white p-2">
+      <div class="px-2 grid grid-rows-[1fr_auto]">
+        <div class="overflow-scroll p-2">
           <%= if length(@messages) > 0 do %>
             <.message_list messages={@messages} class="h-1" />
           <% else %>
             <h3 class="font-bold text-lg">There are no comments yet</h3>
           <% end %>
         </div>
+
         <div class="p-2">
           <.live_component
             module={PlaygroundWeb.MessageFormComponent}

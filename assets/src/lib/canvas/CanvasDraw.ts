@@ -47,6 +47,8 @@ export class CanvasDraw implements CanvasLayer, CanvasSettingsReceiver {
       stroke: this.settings.color,
       strokeWidth: this.settings.brushSize,
       globalCompositeOperation: "source-over",
+      shadowForStrokeEnabled: false,
+      hitStrokeWidth: 0,
       lineCap: "round",
       lineJoin: "round",
       points: [pos.x, pos.y, pos.x, pos.y],

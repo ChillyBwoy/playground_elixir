@@ -11,7 +11,7 @@ defmodule Playground.Chalkboard.ShapeAttrs do
     field :line_cap, :string
     field :line_join, :string
     field :global_composite_operation, :string
-    field :points, {:array, :integer}, default: []
+    field :points, {:array, :float}, default: []
   end
 
   @doc false
